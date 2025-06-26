@@ -2,7 +2,8 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
-  <title>FinanSmart</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FinanSmart com Login</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -17,6 +18,7 @@
     }
   </script>
   <style>
+    html, body { height: 100%; margin: 0; }
     .preview-img {
       max-width: 100%;
       max-height: 200px;
@@ -25,102 +27,73 @@
       margin-top: 0.5rem;
     }
   </style>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
 </head>
-<body class="bg-secondary min-h-screen font-sans">
-  <div class="max-w-md mx-auto bg-white min-h-screen flex flex-col">
-    <header class="bg-primary text-white p-4 rounded-b-xl shadow">
-      <div class="flex items-center justify-between">
-        <h1 class="text-lg font-semibold">Cofre.io</h1>
-        <div class="flex gap-3">
-          <span class="material-icons">notifications</span>
-          <span class="material-icons">settings</span>
-        </div>
-      </div>
+<body class="bg-gradient-to-br from-primary to-purple-700 min-h-screen flex items-center justify-center font-sans">
+
+  <!-- TELA DE LOGIN -->
+  <div id="loginTela" class="w-full max-w-md p-6 bg-white rounded-2xl shadow-xl space-y-6 text-center">
+    <div class="flex flex-col items-center space-y-2">
+      <span class="material-icons text-5xl text-primary">lock</span>
+      <h1 class="text-2xl font-bold text-gray-800">Bem-vindo ao FinanSmart</h1>
+      <p class="text-sm text-gray-500">Faça login para acessar suas finanças</p>
+    </div>
+    <div class="space-y-4">
+      <input id="usuario" type="text" placeholder="Usuário" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" />
+      <input id="senha" type="password" placeholder="Senha" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" />
+      <button onclick="fazerLogin()" class="w-full bg-primary text-white p-3 rounded-lg font-semibold hover:bg-purple-800 transition">Entrar</button>
+    </div>
+    <p id="erroLogin" class="text-red-600 text-sm mt-2 hidden animate-pulse">Usuário ou senha inválidos</p>
+  </div>
+
+  <!-- APLICATIVO -->
+  <div id="appTela" class="hidden w-full h-full min-h-screen bg-white flex flex-col">
+    <header class="bg-primary text-white p-4 rounded-b-xl shadow flex justify-between items-center">
+      <h1 class="text-lg font-semibold">Cofre.io</h1>
+      <button onclick="logout()" class="bg-white text-primary text-xs px-2 py-1 rounded">Sair</button>
     </header>
 
-    <main class="flex-1 p-4 space-y-6">
-      <!-- Renda Atual -->
+    <main class="flex-1 p-4 space-y-6 overflow-auto">
       <section class="bg-white rounded-xl p-4 shadow space-y-2">
         <div class="text-gray-500 text-sm">Renda Atual</div>
         <div class="text-2xl font-bold text-black">R$ <span id="rendaTotal">0.00</span></div>
-        <!-- SALDO DISPONÍVEL -->
         <div id="rendaRestante" class="text-lg font-semibold mt-1"></div>
       </section>
 
-      <!-- Informe sua Renda -->
       <section class="bg-white rounded-xl p-4 shadow space-y-2">
         <h2 class="text-gray-500 text-sm">Informe sua Renda</h2>
         <div class="flex gap-2">
-          <input
-            type="number"
-            id="rendaInput"
-            class="w-full border border-gray-300 rounded p-2"
-            placeholder="Valor da Renda"
-          />
-          <button
-            onclick="adicionarRenda()"
-            class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-          >
-            Salvar
-          </button>
+          <input type="number" id="rendaInput" class="w-full border border-gray-300 rounded p-2" placeholder="Valor da Renda"/>
+          <button onclick="adicionarRenda()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Salvar</button>
         </div>
       </section>
 
-      <!-- Cartão -->
       <section class="bg-white rounded-xl p-4 shadow">
-        <div class="text-gray-500 text-sm">Minhas dividas</div>
+        <div class="text-gray-500 text-sm">Minhas dívidas</div>
         <div class="text-xl font-bold text-black">R$ <span id="despesasTotal">0.00</span></div>
         <div class="text-xs text-gray-500">Fatura atual</div>
-        <div class="text-xs text-gray-500">
-          Limite disponível: R$ <span id="limiteDisponivel">0.00</span>
-        </div>
+        <div class="text-xs text-gray-500">Limite disponível: R$ <span id="limiteDisponivel">0.00</span></div>
       </section>
 
-      <!-- Adicionar Despesa -->
       <section class="bg-white rounded-xl p-4 shadow space-y-2">
         <h2 class="text-gray-500 text-sm">Nova Despesa</h2>
-        <input
-          type="text"
-          id="descDespesa"
-          class="w-full border border-gray-300 rounded p-2"
-          placeholder="Descrição"
-        />
-        <input
-          type="number"
-          id="valorDespesa"
-          class="w-full border border-gray-300 rounded p-2"
-          placeholder="Valor"
-        />
-        <input
-          type="file"
-          id="imagemDespesa"
-          class="w-full border border-gray-300 rounded p-2"
-        />
-        <button
-          onclick="adicionarDespesa()"
-          class="bg-primary w-full text-white p-2 rounded font-semibold"
-        >
-          Adicionar Despesa
-        </button>
+        <input type="text" id="descDespesa" class="w-full border border-gray-300 rounded p-2" placeholder="Descrição"/>
+        <input type="number" id="valorDespesa" class="w-full border border-gray-300 rounded p-2" placeholder="Valor"/>
+        <div>
+          <input type="file" id="imagemDespesa" class="hidden" onchange="mostrarNomeArquivo()" />
+          <label for="imagemDespesa" class="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 inline-block text-center w-full text-sm">📁 Escolher Imagem</label>
+          <p id="nomeArquivo" class="text-sm text-gray-600 mt-2"></p>
+        </div>
+        <button onclick="adicionarDespesa()" class="bg-primary w-full text-white p-2 rounded font-semibold">Adicionar Despesa</button>
       </section>
 
-      <!-- Lista de Despesas -->
       <section class="space-y-2" id="listaDespesas"></section>
     </main>
 
     <footer class="bg-white p-4 border-t flex justify-around text-primary">
-      <button class="flex flex-col items-center text-xs">
-        <span class="material-icons">home</span>
-        Início
-      </button>
-      <button class="flex flex-col items-center text-xs">
-        <span class="material-icons">bar_chart</span>
-        Análise
-      </button>
-      <button class="flex flex-col items-center text-xs">
-        <span class="material-icons">add_circle</span>
-        Adicionar
-      </button>
+      <button class="flex flex-col items-center text-xs"><span class="material-icons">home</span>Início</button>
+      <button class="flex flex-col items-center text-xs"><span class="material-icons">bar_chart</span>Análise</button>
+      <button class="flex flex-col items-center text-xs"><span class="material-icons">add_circle</span>Adicionar</button>
     </footer>
   </div>
 
@@ -128,8 +101,26 @@
     let renda = 0;
     let despesas = [];
 
-    function calcularDespesas() {
-      return despesas.reduce((sum, item) => sum + item.valor, 0);
+    function fazerLogin() {
+      const user = document.getElementById('usuario').value;
+      const pass = document.getElementById('senha').value;
+      if (user === "admin" && pass === "1234") {
+        document.getElementById('loginTela').classList.add('hidden');
+        document.getElementById('appTela').classList.remove('hidden');
+        carregarDados();
+      } else {
+        document.getElementById('erroLogin').classList.remove('hidden');
+      }
+    }
+
+    function logout() {
+      location.reload();
+    }
+
+    function mostrarNomeArquivo() {
+      const input = document.getElementById('imagemDespesa');
+      const nome = input.files.length > 0 ? input.files[0].name : 'Nenhum arquivo selecionado';
+      document.getElementById('nomeArquivo').textContent = nome;
     }
 
     function adicionarRenda() {
@@ -137,6 +128,7 @@
       if (!isNaN(valor)) {
         renda = valor;
         document.getElementById('rendaInput').value = '';
+        salvarDados();
         atualizar();
       }
     }
@@ -144,21 +136,22 @@
     function adicionarDespesa() {
       const desc = document.getElementById('descDespesa').value;
       const valor = parseFloat(document.getElementById('valorDespesa').value);
-      const imgInput = document.getElementById('imagemDespesa');
-      const file = imgInput.files[0];
+      const file = document.getElementById('imagemDespesa').files[0];
 
       if (desc && !isNaN(valor)) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          despesas.push({ descricao: desc, valor: valor, imagem: e.target.result });
-          limparCamposDespesa();
-          atualizar();
-        };
         if (file) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            despesas.push({ descricao: desc, valor: valor, imagem: e.target.result });
+            limparCamposDespesa();
+            salvarDados();
+            atualizar();
+          };
           reader.readAsDataURL(file);
         } else {
           despesas.push({ descricao: desc, valor: valor, imagem: null });
           limparCamposDespesa();
+          salvarDados();
           atualizar();
         }
       }
@@ -168,47 +161,46 @@
       document.getElementById('descDespesa').value = '';
       document.getElementById('valorDespesa').value = '';
       document.getElementById('imagemDespesa').value = '';
+      document.getElementById('nomeArquivo').textContent = '';
     }
 
     function atualizar() {
-      const ul = document.getElementById('listaDespesas');
-      ul.innerHTML = '';
-      const total = calcularDespesas();
+      const lista = document.getElementById('listaDespesas');
+      lista.innerHTML = '';
+      const total = despesas.reduce((sum, item) => sum + item.valor, 0);
 
-      despesas.forEach((item) => {
+      despesas.forEach(item => {
         const div = document.createElement('div');
-        div.className = 'bg-white p-3 rounded shadow border flex justify-between items-center';
-
-        const span = document.createElement('span');
-        span.textContent = `${item.descricao} - R$ ${item.valor.toFixed(2)}`;
-        div.appendChild(span);
-
+        div.className = 'bg-white p-3 rounded shadow border flex flex-col';
+        div.innerHTML = `<span>${item.descricao} - R$ ${item.valor.toFixed(2)}</span>`;
         if (item.imagem) {
           const img = document.createElement('img');
           img.src = item.imagem;
           img.className = 'preview-img mt-2';
           div.appendChild(img);
         }
-
-        ul.appendChild(div);
+        lista.appendChild(div);
       });
 
       document.getElementById('despesasTotal').textContent = total.toFixed(2);
-      document.getElementById('limiteDisponivel').textContent = (730 - total).toFixed(2);
+      document.getElementById('limiteDisponivel').textContent = (renda - total).toFixed(2);
       document.getElementById('rendaTotal').textContent = renda.toFixed(2);
 
-      // SALDO DISPONÍVEL
       const saldo = renda - total;
-      const rendaRestanteElem = document.getElementById('rendaRestante');
-
-      const saldoColorClass = saldo < 0 ? 'text-red-600' : 'text-green-600';
-      rendaRestanteElem.innerHTML = `<span class="text-black">Saldo disponível: </span><span class="${saldoColorClass}">R$ ${saldo.toFixed(2)}</span>`;
+      const cor = saldo < 0 ? 'text-red-600' : 'text-green-600';
+      document.getElementById('rendaRestante').innerHTML = `<span class="text-black">Saldo disponível: </span><span class="${cor}">R$ ${saldo.toFixed(2)}</span>`;
     }
 
-    // Inicialização
-    atualizar();
-  </script>
+    function salvarDados() {
+      localStorage.setItem('renda', renda);
+      localStorage.setItem('despesas', JSON.stringify(despesas));
+    }
 
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    function carregarDados() {
+      renda = parseFloat(localStorage.getItem('renda')) || 0;
+      despesas = JSON.parse(localStorage.getItem('despesas')) || [];
+      atualizar();
+    }
+  </script>
 </body>
 </html>
