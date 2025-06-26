@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>FinanSmart</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#6C27FF',
+            secondary: '#f3f4f6'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .preview-img {
+      max-width: 100%;
+      max-height: 200px;
+      border-radius: 0.5rem;
+      border: 1px solid #ccc;
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body class="bg-secondary min-h-screen font-sans">
+  <div class="max-w-md mx-auto bg-white min-h-screen flex flex-col">
+    <header class="bg-primary text-white p-4 rounded-b-xl shadow">
+      <div class="flex items-center justify-between">
+        <h1 class="text-lg font-semibold">Cofre.io</h1>
+        <div class="flex gap-3">
+          <span class="material-icons">notifications</span>
+          <span class="material-icons">settings</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-1 p-4 space-y-6">
+      <!-- Renda Atual -->
+      <section class="bg-white rounded-xl p-4 shadow space-y-2">
+        <div class="text-gray-500 text-sm">Renda Atual</div>
+        <div class="text-2xl font-bold text-black">R$ <span id="rendaTotal">0.00</span></div>
+        <!-- SALDO DISPONÍVEL -->
+        <div id="rendaRestante" class="text-lg font-semibold mt-1"></div>
+      </section>
+
+      <!-- Informe sua Renda -->
+      <section class="bg-white rounded-xl p-4 shadow space-y-2">
+        <h2 class="text-gray-500 text-sm">Informe sua Renda</h2>
+        <div class="flex gap-2">
+          <input
+            type="number"
+            id="rendaInput"
+            class="w-full border border-gray-300 rounded p-2"
+            placeholder="Valor da Renda"
+          />
+          <button
+            onclick="adicionarRenda()"
+            class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+          >
+            Salvar
+          </button>
+        </div>
+      </section>
+
+      <!-- Cartão -->
+      <section class="bg-white rounded-xl p-4 shadow">
+        <div class="text-gray-500 text-sm">Minhas dividas</div>
+        <div class="text-xl font-bold text-black">R$ <span id="despesasTotal">0.00</span></div>
+        <div class="text-xs text-gray-500">Fatura atual</div>
+        <div class="text-xs text-gray-500">
+          Limite disponível: R$ <span id="limiteDisponivel">0.00</span>
+        </div>
+      </section>
+
+      <!-- Adicionar Despesa -->
+      <section class="bg-white rounded-xl p-4 shadow space-y-2">
+        <h2 class="text-gray-500 text-sm">Nova Despesa</h2>
+        <input
+          type="text"
+          id="descDespesa"
+          class="w-full border border-gray-300 rounded p-2"
+          placeholder="Descrição"
+        />
+        <input
+          type="number"
+          id="valorDespesa"
+          class="w-full border border-gray-300 rounded p-2"
+          placeholder="Valor"
+        />
+        <input
+          type="file"
+          id="imagemDespesa"
+          class="w-full border border-gray-300 rounded p-2"
+        />
+        <button
+          onclick="adicionarDespesa()"
+          class="bg-primary w-full text-white p-2 rounded font-semibold"
+        >
+          Adicionar Despesa
+        </button>
+      </section>
+
+      <!-- Lista de Despesas -->
+      <section class="space-y-2" id="listaDespesas"></section>
+    </main>
+
+    <footer class="bg-white p-4 border-t flex justify-around text-primary">
+      <button class="flex flex-col items-center text-xs">
+        <span class="material-icons">home</span>
+        Início
+      </button>
+      <button class="flex flex-col items-center text-xs">
+        <span class="material-icons">bar_chart</span>
+        Análise
+      </button>
+      <button class="flex flex-col items-center text-xs">
+        <span class="material-icons">add_circle</span>
+        Adicionar
+      </button>
+    </footer>
+  </div>
+
+  <script>
+    let renda = 0;
+    let despesas = [];
+
+    function calcularDespesas() {
+      return despesas.reduce((sum, item) => sum + item.valor, 0);
+    }
+
+    function adicionarRenda() {
+      const valor = parseFloat(document.getElementById('rendaInput').value);
+      if (!isNaN(valor)) {
+        renda = valor;
+        document.getElementById('rendaInput').value = '';
+        atualizar();
+      }
+    }
+
+    function adicionarDespesa() {
+      const desc = document.getElementById('descDespesa').value;
+      const valor = parseFloat(document.getElementById('valorDespesa').value);
+      const imgInput = document.getElementById('imagemDespesa');
+      const file = imgInput.files[0];
+
+      if (desc && !isNaN(valor)) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          despesas.push({ descricao: desc, valor: valor, imagem: e.target.result });
+          limparCamposDespesa();
+          atualizar();
+        };
+        if (file) {
+          reader.readAsDataURL(file);
+        } else {
+          despesas.push({ descricao: desc, valor: valor, imagem: null });
+          limparCamposDespesa();
+          atualizar();
+        }
+      }
+    }
+
+    function limparCamposDespesa() {
+      document.getElementById('descDespesa').value = '';
+      document.getElementById('valorDespesa').value = '';
+      document.getElementById('imagemDespesa').value = '';
+    }
+
+    function atualizar() {
+      const ul = document.getElementById('listaDespesas');
+      ul.innerHTML = '';
+      const total = calcularDespesas();
+
+      despesas.forEach((item) => {
+        const div = document.createElement('div');
+        div.className = 'bg-white p-3 rounded shadow border flex justify-between items-center';
+
+        const span = document.createElement('span');
+        span.textContent = `${item.descricao} - R$ ${item.valor.toFixed(2)}`;
+        div.appendChild(span);
+
+        if (item.imagem) {
+          const img = document.createElement('img');
+          img.src = item.imagem;
+          img.className = 'preview-img mt-2';
+          div.appendChild(img);
+        }
+
+        ul.appendChild(div);
+      });
+
+      document.getElementById('despesasTotal').textContent = total.toFixed(2);
+      document.getElementById('limiteDisponivel').textContent = (730 - total).toFixed(2);
+      document.getElementById('rendaTotal').textContent = renda.toFixed(2);
+
+      // SALDO DISPONÍVEL
+      const saldo = renda - total;
+      const rendaRestanteElem = document.getElementById('rendaRestante');
+
+      const saldoColorClass = saldo < 0 ? 'text-red-600' : 'text-green-600';
+      rendaRestanteElem.innerHTML = `<span class="text-black">Saldo disponível: </span><span class="${saldoColorClass}">R$ ${saldo.toFixed(2)}</span>`;
+    }
+
+    // Inicialização
+    atualizar();
+  </script>
+
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+</body>
+</html>
