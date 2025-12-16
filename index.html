@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>MinhasEconomias - OCR Avançado</title>
+  <title>MinhasEconomias - OCR Definitivo</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
   <script src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'></script>
@@ -40,8 +40,8 @@
 
   <div id="ocrLoading" class="fixed inset-0 z-[200] bg-slate-900/95 backdrop-blur-md hidden flex-col items-center justify-center text-white text-center p-6">
      <div class="w-16 h-16 border-4 border-brand-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-     <h3 class="text-xl font-bold animate-pulse">Analisando Cupom...</h3>
-     <p class="text-sm text-slate-400 mt-2" id="ocrStatus">Otimizando imagem...</p>
+     <h3 class="text-xl font-bold animate-pulse">Lendo Nota Fiscal...</h3>
+     <p class="text-sm text-slate-400 mt-2" id="ocrStatus">Aplicando filtro de contraste...</p>
      <canvas id="ocrCanvas" class="hidden"></canvas>
   </div>
 
@@ -259,7 +259,7 @@
     window.addEventListener('DOMContentLoaded', () => { init(); });
 
     function init() {
-       const saved = localStorage.getItem('financas_db_v9');
+       const saved = localStorage.getItem('financas_db_v10');
        if(saved) transacoes = JSON.parse(saved);
        if(localStorage.getItem('isLogged') === 'true') entrarNoApp();
     }
@@ -321,7 +321,7 @@
        const cat = document.getElementById('categoriaTransacao').value;
        if(!val || !desc || !cat) { alert('Preencha todos os campos!'); return; }
        transacoes.push({ id: Date.now(), valor: val, descricao: desc, categoria: cat, tipo: tipoAtual, data: new Date().toLocaleDateString('pt-BR') });
-       localStorage.setItem('financas_db_v9', JSON.stringify(transacoes));
+       localStorage.setItem('financas_db_v10', JSON.stringify(transacoes));
        fecharModal();
        atualizarUI();
     }
@@ -349,7 +349,7 @@
        }).join('');
     }
 
-    function deletar(id) { if(confirm('Tem certeza?')) { transacoes = transacoes.filter(t => t.id !== id); localStorage.setItem('financas_db_v9', JSON.stringify(transacoes)); atualizarUI(); } }
+    function deletar(id) { if(confirm('Tem certeza?')) { transacoes = transacoes.filter(t => t.id !== id); localStorage.setItem('financas_db_v10', JSON.stringify(transacoes)); atualizarUI(); } }
     function abrirExtrato() { document.getElementById('telaPrincipal').classList.add('hidden'); document.getElementById('telaExtrato').classList.remove('hidden'); }
     function voltarParaPrincipal() { document.getElementById('telaExtrato').classList.add('hidden'); document.getElementById('telaPrincipal').classList.remove('hidden'); }
     function filtrarExtrato(tipo) {
@@ -358,7 +358,7 @@
        renderList('listaExtratoCompleto', (tipo === 'todos' ? transacoes : transacoes.filter(t => t.tipo === tipo)).slice().reverse());
     }
 
-    /* === OCR OTIMIZADO V2 === */
+    /* === OCR ULTRA OTIMIZADO === */
     function ativarCamera() { document.getElementById('inputCamera').click(); }
 
     async function processarImagem(input) {
@@ -368,28 +368,44 @@
           loading.classList.remove('hidden'); loading.classList.add('flex');
           
           try {
-             status.innerText = "Otimizando imagem...";
+             status.innerText = "Preparando e Limpando Imagem...";
              const file = input.files[0];
              const imageBitmap = await createImageBitmap(file);
              const canvas = document.getElementById('ocrCanvas');
              const ctx = canvas.getContext('2d');
              
-             // Redimensiona (Max 1200px)
+             // Redimensiona para resolução ideal para OCR
              let width = imageBitmap.width; let height = imageBitmap.height;
-             const maxSize = 1200;
+             const maxSize = 1500;
              if (width > height && width > maxSize) { height *= maxSize / width; width = maxSize; }
              else if (height > maxSize) { width *= maxSize / height; height = maxSize; }
              canvas.width = width; canvas.height = height;
              
-             // FILTRO DE IMAGEM: Contraste Alto + Escala de Cinza
-             ctx.filter = 'grayscale(1) contrast(1.5)';
+             // Desenha imagem
              ctx.drawImage(imageBitmap, 0, 0, width, height);
              
-             const processedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+             // BINARIZAÇÃO (Preto e Branco Puro) - Segredo para limpar o "ruído"
+             const imageData = ctx.getImageData(0, 0, width, height);
+             const data = imageData.data;
+             for (let i = 0; i < data.length; i += 4) {
+                // Converte para escala de cinza
+                const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+                // Aplica limiar (Threshold) forte: Se for cinza escuro vira preto, senão branco
+                const color = avg < 140 ? 0 : 255; 
+                data[i] = data[i + 1] = data[i + 2] = color;
+             }
+             ctx.putImageData(imageData, 0, 0);
+             
+             const processedDataUrl = canvas.toDataURL('image/jpeg', 0.9);
 
-             status.innerText = "Lendo texto...";
+             status.innerText = "Extraindo texto...";
              const worker = await Tesseract.createWorker();
+             // PSM 6 = Assume um único bloco de texto uniforme (melhor para listas verticais de cupons)
              await worker.loadLanguage('por'); await worker.initialize('por');
+             await worker.setParameters({
+               tessedit_pageseg_mode: Tesseract.PSM.SINGLE_BLOCK,
+             });
+             
              const { data: { text } } = await worker.recognize(processedDataUrl);
              await worker.terminate();
 
@@ -404,59 +420,45 @@
     }
 
     function extrairValor(texto) {
-      // Normaliza quebras de linha e espaços
+      // Divide linhas e limpa
       const linhas = texto.split('\n').map(l => l.trim().toUpperCase()).filter(l => l.length > 0);
       
-      // Regex que aceita espaços no meio (7 66,12 -> 766,12)
-      // Procura: Dígitos, espaços opcionais, pontos opcionais, vírgula obrigatória, 2 dígitos
-      const regexSmart = /([\d\s\.]+,\d{2})/g; 
-      
-      const keywordsPrioridade = ['A PAGAR', 'VALOR PAGO', 'TOTAL LIQUIDO', 'VALOR TOTAL'];
+      const keywords = ['VALOR A PAGAR', 'TOTAL A PAGAR', 'A PAGAR', 'TOTAL LIQUIDO', 'TOTAL'];
       let valorEncontrado = 0;
 
-      // 1. Prioridade Máxima (Evita Descontos e Troco)
-      for (let linha of linhas) {
-         if (linha.includes('DESCONTO') || linha.includes('TROCO') || linha.includes('ITENS')) continue;
+      // BUSCA INTELIGENTE
+      for (let key of keywords) {
+         if (valorEncontrado > 0) break;
+         for (let linha of linhas) {
+            // Ignora linhas de desconto/troco para não pegar o valor errado
+            if (linha.includes('DESCONTO') || linha.includes('TROCO') || linha.includes('ITENS')) continue;
 
-         for (let key of keywordsPrioridade) {
             if (linha.includes(key)) {
-               const matches = linha.match(regexSmart);
-               if (matches) {
-                  // Pega o último valor da linha e limpa espaços
-                  let valorLimpo = matches[matches.length-1].replace(/\s/g, '').replace(/\./g, '').replace(',', '.');
-                  let v = parseFloat(valorLimpo);
-                  if (!isNaN(v) && v > 0) { valorEncontrado = v; break; }
+               // ESTRATÉGIA: Corta a string APÓS a palavra chave
+               // Ex: "VALOR A PAGAR R$ 766,12" -> Vira " R$ 766,12"
+               let restoDaLinha = linha.split(key)[1]; 
+               if (!restoDaLinha) continue;
+
+               // Limpa TUDO que não for número ou vírgula (R$, espaços, pontos somem)
+               // Ex: " R$ 766,12" -> "766,12"
+               // Ex: " R$ 7 66,12" -> "766,12" (Resolve o problema do espaço no meio)
+               let numerosLimpos = restoDaLinha.replace(/[^0-9,]/g, '');
+               
+               // Se sobrou algo válido
+               if (numerosLimpos.length > 2 && numerosLimpos.includes(',')) {
+                  valorEncontrado = parseFloat(numerosLimpos.replace(',', '.'));
+                  break;
                }
             }
-         }
-         if (valorEncontrado > 0) break;
-      }
-
-      // 2. Fallback: Se não achou "A PAGAR", procura o maior valor numérico no texto inteiro
-      if (valorEncontrado === 0) {
-         const allMatches = texto.match(regexSmart);
-         let maior = 0;
-         if (allMatches) {
-            allMatches.forEach(m => {
-               // Remove espaços internos (ex: "7 66,12" -> "766,12")
-               let limpo = m.replace(/\s/g, '').replace(/\./g, '').replace(',', '.');
-               let v = parseFloat(limpo);
-               // Filtra anos (2024, 2025) e valores absurdos
-               if (!isNaN(v) && v > maior && v < 20000 && !limpo.includes('2024') && !limpo.includes('2025')) maior = v;
-            });
-            if (maior > 0) valorEncontrado = maior;
          }
       }
 
       if (valorEncontrado > 0) {
          document.getElementById('valorTransacao').value = valorEncontrado.toFixed(2);
          document.getElementById('descricaoTransacao').value = "Compra (Nota Fiscal)";
-         // Toca um feedback visual
-         const input = document.getElementById('valorTransacao');
-         input.classList.add('bg-green-100', 'text-green-800');
-         setTimeout(() => input.classList.remove('bg-green-100', 'text-green-800'), 1500);
+         alert(`Valor detectado: R$ ${valorEncontrado.toFixed(2)}`);
       } else {
-         alert("Não conseguimos identificar o valor com clareza. Por favor, digite.");
+         alert("Não conseguimos ler o valor exato. Preencha manualmente.");
       }
     }
   </script>
