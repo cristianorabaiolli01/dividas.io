@@ -3,9 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>MinhasEconomias - App Final</title>
+  <title>MinhasEconomias - OCR Corrigido</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
+  
+  <script src='https://unpkg.com/tesseract.js@v4.0.2/dist/tesseract.min.js'></script>
   
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
@@ -18,81 +20,44 @@
           colors: {
             brand: { 50: '#eef2ff', 100: '#e0e7ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 900: '#312e81' }
           },
-          animation: {
-            'fade-in': 'fadeIn 0.5s ease-out forwards',
-          },
-          keyframes: {
-            fadeIn: {
-              '0%': { opacity: '0' },
-              '100%': { opacity: '1' },
-            }
-          }
+          animation: { 'fade-in': 'fadeIn 0.5s ease-out forwards' },
+          keyframes: { fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } } }
         }
       }
     }
   </script>
 
   <style>
-    /* Reset e Ajustes Globais */
     body { -webkit-tap-highlight-color: transparent; background-color: #f8fafc; }
-    
-    /* Utilitário para esconder Scrollbar */
     .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-    /* Área segura para iPhone X+ */
     .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
 
-    /* --- LÓGICA DO MODAL RESPONSIVO --- */
-    /* Mobile: Gaveta (Bottom Sheet) */
+    /* Modal Responsivo */
     .modal-content {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      border-top-left-radius: 2rem;
-      border-top-right-radius: 2rem;
-      border-bottom-left-radius: 0;
-      border-bottom-right-radius: 0;
-      transform: translateY(100%);
-      width: 100%;
-      max-width: 100%;
-      max-height: 90vh;
-      overflow-y: auto;
+      position: absolute; bottom: 0; left: 0; right: 0;
+      border-top-left-radius: 2rem; border-top-right-radius: 2rem;
+      transform: translateY(100%); width: 100%; max-height: 90vh; overflow-y: auto;
     }
-    
     .modal-open .modal-content { transform: translateY(0); }
 
-    /* Desktop: Dialog Centralizado */
     @media (min-width: 768px) {
       .modal-content {
-        position: relative;
-        bottom: auto;
-        left: auto;
-        right: auto;
-        border-radius: 1.5rem;
-        transform: scale(0.95);
-        opacity: 0;
-        width: 100%;
-        max-width: 450px;
-        margin: auto;
-        overflow-y: visible;
+        position: relative; bottom: auto; transform: scale(0.95); opacity: 0;
+        width: 100%; max-width: 450px; margin: auto; border-radius: 1.5rem; overflow-y: visible;
       }
-      
-      .modal-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .modal-open .modal-content {
-        transform: scale(1);
-        opacity: 1;
-      }
+      .modal-container { display: flex; align-items: center; justify-content: center; }
+      .modal-open .modal-content { transform: scale(1); opacity: 1; }
     }
   </style>
 </head>
 <body class="text-slate-800 antialiased h-screen flex overflow-hidden bg-slate-50 selection:bg-brand-500 selection:text-white">
+
+  <div id="ocrLoading" class="fixed inset-0 z-[200] bg-slate-900/90 backdrop-blur-sm hidden flex-col items-center justify-center text-white text-center p-6">
+     <div class="w-16 h-16 border-4 border-brand-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+     <h3 class="text-xl font-bold animate-pulse">Lendo Nota Fiscal...</h3>
+     <p class="text-sm text-slate-400 mt-2" id="ocrStatus">Processando imagem...</p>
+     <p class="text-xs text-slate-500 mt-4 max-w-xs">Dica: Tire a foto em local bem iluminado e foque no valor "TOTAL".</p>
+  </div>
 
   <div id="loginTela" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-50">
     <div class="w-full max-w-sm bg-white rounded-3xl shadow-xl p-8 border border-slate-100 animate-fade-in">
@@ -106,7 +71,7 @@
       <div class="space-y-4">
         <input id="usuario" type="text" value="admin" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 px-4 focus:ring-2 focus:ring-brand-500 outline-none font-medium transition-all" placeholder="Usuário">
         <input id="senha" type="password" value="1234" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 px-4 focus:ring-2 focus:ring-brand-500 outline-none font-medium transition-all" placeholder="Senha">
-        <button onclick="fazerLogin()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-brand-500/30 transition-transform active:scale-95 text-lg">Entrar</button>
+        <button onclick="fazerLogin()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-4 rounded-xl shadow-lg transition-transform active:scale-95 text-lg">Entrar</button>
         <p id="erroLogin" class="text-red-500 text-sm text-center hidden bg-red-50 py-2 rounded-lg font-medium">Dados incorretos.</p>
       </div>
     </div>
@@ -135,12 +100,9 @@
   </aside>
 
   <main id="appContent" class="hidden flex-1 flex-col h-full relative bg-slate-50">
-    
     <header class="fixed top-0 left-0 right-0 md:static bg-white/90 backdrop-blur-xl z-40 px-6 py-4 flex justify-between items-center border-b border-slate-200/60 shadow-sm md:shadow-none h-[72px]">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 bg-gradient-to-br from-brand-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold shadow-md shrink-0">
-          A
-        </div>
+        <div class="w-10 h-10 bg-gradient-to-br from-brand-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold shadow-md shrink-0">A</div>
         <div>
           <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wide">Bem-vindo,</p>
           <h2 class="text-slate-900 font-bold leading-none text-lg">Administrador</h2>
@@ -156,15 +118,10 @@
     </header>
 
     <div class="flex-1 overflow-y-auto p-5 pb-32 md:p-8 md:pb-8 pt-24 md:pt-8 scroll-smooth" id="scrollContainer">
-      
       <div id="telaPrincipal" class="max-w-7xl mx-auto transition-opacity duration-300">
-        
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-           
            <div class="lg:col-span-2 space-y-8">
-              
               <section class="relative w-full bg-gradient-to-br from-[#4f46e5] to-[#4338ca] rounded-[2rem] p-6 text-white shadow-xl overflow-hidden min-h-[220px] flex flex-col justify-between">
-                
                 <div class="absolute -right-16 -top-16 w-64 h-64 bg-white opacity-10 rounded-full blur-3xl pointer-events-none"></div>
                 <div class="absolute -left-16 bottom-0 w-48 h-48 bg-purple-500 opacity-20 rounded-full blur-3xl pointer-events-none"></div>
                 
@@ -222,8 +179,7 @@
                     <h3 class="text-slate-800 font-bold text-lg">Histórico Recente</h3>
                     <button onclick="abrirExtrato()" class="text-brand-600 text-xs font-bold uppercase tracking-wider hover:bg-brand-50 px-2 py-1 rounded-lg transition-colors">Ver tudo</button>
                  </div>
-                 <div id="listaTransacoes" class="flex-1 space-y-4 overflow-y-auto no-scrollbar">
-                    </div>
+                 <div id="listaTransacoes" class="flex-1 space-y-4 overflow-y-auto no-scrollbar"></div>
               </div>
            </div>
         </div>
@@ -233,7 +189,6 @@
         <button onclick="voltarParaPrincipal()" class="mb-6 flex items-center gap-2 text-slate-500 hover:text-brand-600 font-bold transition-colors bg-white px-4 py-2 rounded-full shadow-sm w-fit">
            <span class="material-icons-round text-sm">arrow_back_ios</span> Voltar
         </button>
-        
         <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100 min-h-[500px]">
            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-6">
               <h2 class="text-2xl font-bold text-slate-900">Extrato Completo</h2>
@@ -246,64 +201,53 @@
            <div id="listaExtratoCompleto" class="space-y-2"></div>
         </div>
       </div>
-
     </div>
   </main>
 
-  <button onclick="abrirModalTransacao('despesa')" class="md:hidden fixed bottom-[90px] right-6 w-14 h-14 bg-brand-600 text-white rounded-full shadow-xl shadow-brand-500/40 flex items-center justify-center active:scale-90 transition-transform z-40">
-    <span class="material-icons-round text-3xl">add</span>
-  </button>
+  <button onclick="abrirModalTransacao('despesa')" class="md:hidden fixed bottom-[90px] right-6 w-14 h-14 bg-brand-600 text-white rounded-full shadow-xl shadow-brand-500/40 flex items-center justify-center active:scale-90 transition-transform z-40"><span class="material-icons-round text-3xl">add</span></button>
 
   <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-8 py-4 flex justify-between items-center z-50 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.05)] rounded-t-[2rem]">
-    <button onclick="voltarParaPrincipal()" class="flex flex-col items-center gap-1 text-brand-600 transition-transform active:scale-90">
-      <span class="material-icons-round text-3xl">home</span>
-    </button>
-    <button onclick="abrirExtrato()" class="flex flex-col items-center gap-1 text-slate-300 hover:text-brand-500 transition-transform active:scale-90">
-      <span class="material-icons-round text-3xl">receipt_long</span>
-    </button>
-    <button class="flex flex-col items-center gap-1 text-slate-300 hover:text-brand-500 transition-transform active:scale-90">
-      <span class="material-icons-round text-3xl">pie_chart</span>
-    </button>
-    <button onclick="logout()" class="flex flex-col items-center gap-1 text-slate-300 hover:text-red-500 transition-transform active:scale-90">
-      <span class="material-icons-round text-3xl">logout</span>
-    </button>
+    <button onclick="voltarParaPrincipal()" class="flex flex-col items-center gap-1 text-brand-600 transition-transform active:scale-90"><span class="material-icons-round text-3xl">home</span></button>
+    <button onclick="abrirExtrato()" class="flex flex-col items-center gap-1 text-slate-300 hover:text-brand-500 transition-transform active:scale-90"><span class="material-icons-round text-3xl">receipt_long</span></button>
+    <button class="flex flex-col items-center gap-1 text-slate-300 hover:text-brand-500 transition-transform active:scale-90"><span class="material-icons-round text-3xl">pie_chart</span></button>
+    <button onclick="logout()" class="flex flex-col items-center gap-1 text-slate-300 hover:text-red-500 transition-transform active:scale-90"><span class="material-icons-round text-3xl">logout</span></button>
   </nav>
 
   <div id="modalTransacao" class="fixed inset-0 z-[100] hidden modal-container transition-all duration-300">
     <div onclick="fecharModal()" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity opacity-0" id="modalBackdrop"></div>
-    
     <div class="bg-white p-8 shadow-2xl transition-all duration-300 modal-content relative" id="modalContent">
       <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-8 md:hidden"></div>
       
       <div class="flex items-center justify-between mb-8">
          <div class="flex items-center gap-4">
-            <div id="modalIconBg" class="w-14 h-14 rounded-2xl flex items-center justify-center transition-colors shadow-sm">
-               <span id="modalIcon" class="material-icons-round text-white text-2xl"></span>
-            </div>
+            <div id="modalIconBg" class="w-14 h-14 rounded-2xl flex items-center justify-center transition-colors shadow-sm"><span id="modalIcon" class="material-icons-round text-white text-2xl"></span></div>
             <div>
                <p class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-1">Nova Transação</p>
                <h3 id="modalTitulo" class="text-2xl font-bold text-slate-900 leading-none">Registrar</h3>
             </div>
          </div>
-         <button onclick="fecharModal()" class="hidden md:flex w-10 h-10 rounded-full bg-slate-50 items-center justify-center hover:bg-slate-100 transition-colors">
-            <span class="material-icons-round text-slate-400">close</span>
-         </button>
+         <button onclick="fecharModal()" class="hidden md:flex w-10 h-10 rounded-full bg-slate-50 items-center justify-center hover:bg-slate-100 transition-colors"><span class="material-icons-round text-slate-400">close</span></button>
       </div>
 
       <div class="space-y-6">
         <div>
           <label class="block text-xs font-bold text-slate-500 uppercase mb-2 ml-1">Valor</label>
-          <div class="relative group">
-             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-lg group-focus-within:text-brand-500">R$</span>
-             <input id="valorTransacao" type="number" step="0.01" inputmode="decimal" placeholder="0,00" 
-              class="w-full bg-slate-50 border border-slate-200 rounded-2xl py-5 pl-12 pr-4 text-3xl font-bold text-slate-800 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500/50 transition-all placeholder:text-slate-300">
+          <div class="relative flex gap-2">
+             <div class="relative group flex-1">
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-lg group-focus-within:text-brand-500">R$</span>
+                <input id="valorTransacao" type="number" step="0.01" inputmode="decimal" placeholder="0,00" 
+                 class="w-full bg-slate-50 border border-slate-200 rounded-2xl py-5 pl-12 pr-4 text-3xl font-bold text-slate-800 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500/50 transition-all placeholder:text-slate-300">
+             </div>
+             <button onclick="ativarCamera()" class="w-16 h-auto bg-slate-100 rounded-2xl border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-brand-50 hover:text-brand-600 hover:border-brand-200 transition-all active:scale-95">
+                <span class="material-icons-round text-3xl">photo_camera</span>
+             </button>
+             <input type="file" id="inputCamera" accept="image/*" capture="environment" class="hidden" onchange="processarImagem(this)">
           </div>
         </div>
 
         <div>
           <label class="block text-xs font-bold text-slate-500 uppercase mb-2 ml-1">Descrição</label>
-          <input id="descricaoTransacao" type="text" placeholder="Ex: Mercado, Freelance" 
-            class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 font-semibold text-slate-700 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500/50 transition-all">
+          <input id="descricaoTransacao" type="text" placeholder="Ex: Mercado, Freelance" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 font-semibold text-slate-700 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500/50 transition-all">
         </div>
 
         <div>
@@ -324,9 +268,7 @@
            </div>
         </div>
 
-        <button onclick="salvarTransacao()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-5 rounded-2xl shadow-xl shadow-brand-500/20 active:scale-95 transition-all mt-4 text-lg">
-           Confirmar
-        </button>
+        <button onclick="salvarTransacao()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-5 rounded-2xl shadow-xl shadow-brand-500/20 active:scale-95 transition-all mt-4 text-lg">Confirmar</button>
       </div>
     </div>
   </div>
@@ -335,31 +277,22 @@
     let transacoes = [];
     let tipoAtual = '';
 
-    // Inicialização ao carregar a página
-    window.addEventListener('DOMContentLoaded', () => {
-       init();
-    });
+    window.addEventListener('DOMContentLoaded', () => { init(); });
 
     function init() {
-       const saved = localStorage.getItem('financas_db_v3');
+       const saved = localStorage.getItem('financas_db_v6');
        if(saved) transacoes = JSON.parse(saved);
-       
-       // Verifica se já está logado
-       if(localStorage.getItem('isLogged') === 'true') {
-          entrarNoApp();
-       }
+       if(localStorage.getItem('isLogged') === 'true') entrarNoApp();
     }
 
     function fazerLogin() {
        const u = document.getElementById('usuario').value;
        const s = document.getElementById('senha').value;
-       
        if(u === 'admin' && s === '1234') {
           localStorage.setItem('isLogged', 'true');
           entrarNoApp();
        } else {
-          const erro = document.getElementById('erroLogin');
-          erro.classList.remove('hidden');
+          document.getElementById('erroLogin').classList.remove('hidden');
        }
     }
 
@@ -367,20 +300,14 @@
        document.getElementById('loginTela').classList.add('hidden');
        document.getElementById('appContent').classList.remove('hidden');
        document.getElementById('appContent').classList.add('flex');
-       
-       // Mostra Sidebar apenas no Desktop
        if(window.innerWidth >= 768) {
           document.getElementById('sidebar').classList.remove('hidden');
           document.getElementById('sidebar').classList.add('flex');
        }
-       
        atualizarUI();
     }
 
-    function logout() {
-       localStorage.removeItem('isLogged');
-       location.reload();
-    }
+    function logout() { localStorage.removeItem('isLogged'); location.reload(); }
 
     function abrirModalTransacao(tipo) {
        tipoAtual = tipo;
@@ -400,9 +327,7 @@
           icon.innerText = 'arrow_downward';
           icon.className = 'material-icons-round text-rose-600 text-3xl';
        }
-
        modal.classList.remove('hidden');
-       // Pequeno delay para permitir a transição CSS
        setTimeout(() => {
           modal.classList.add('modal-open');
           document.getElementById('modalBackdrop').classList.remove('opacity-0');
@@ -413,7 +338,6 @@
        const modal = document.getElementById('modalTransacao');
        modal.classList.remove('modal-open');
        document.getElementById('modalBackdrop').classList.add('opacity-0');
-       
        setTimeout(() => {
           modal.classList.add('hidden');
           document.getElementById('valorTransacao').value = '';
@@ -429,16 +353,8 @@
 
        if(!val || !desc || !cat) { alert('Preencha todos os campos!'); return; }
 
-       transacoes.push({
-          id: Date.now(),
-          valor: val,
-          descricao: desc,
-          categoria: cat,
-          tipo: tipoAtual,
-          data: new Date().toLocaleDateString('pt-BR')
-       });
-
-       localStorage.setItem('financas_db_v3', JSON.stringify(transacoes));
+       transacoes.push({ id: Date.now(), valor: val, descricao: desc, categoria: cat, tipo: tipoAtual, data: new Date().toLocaleDateString('pt-BR') });
+       localStorage.setItem('financas_db_v6', JSON.stringify(transacoes));
        fecharModal();
        atualizarUI();
     }
@@ -446,9 +362,8 @@
     function atualizarUI() {
        const receitas = transacoes.filter(t => t.tipo === 'receita').reduce((a,b)=>a+b.valor,0);
        const despesas = transacoes.filter(t => t.tipo === 'despesa').reduce((a,b)=>a+b.valor,0);
-       const saldo = receitas - despesas;
        
-       document.getElementById('saldoTotal').innerText = saldo.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+       document.getElementById('saldoTotal').innerText = (receitas - despesas).toLocaleString('pt-BR', {minimumFractionDigits: 2});
        document.getElementById('receitasMes').innerText = receitas.toLocaleString('pt-BR', {minimumFractionDigits: 2});
        document.getElementById('gastosMes').innerText = despesas.toLocaleString('pt-BR', {minimumFractionDigits: 2});
        
@@ -462,21 +377,14 @@
           el.innerHTML = `<div class="text-center py-10 opacity-50"><span class="material-icons-round text-5xl mb-2 text-slate-300">inbox</span><p class="text-slate-400 font-medium">Nenhuma movimentação</p></div>`;
           return;
        }
-       
        const icons = { 'alimentacao': 'restaurant', 'transporte': 'directions_car', 'moradia': 'home', 'lazer': 'confirmation_number', 'saude': 'favorite', 'educacao': 'school', 'salario': 'payments', 'outros': 'category' };
-
        el.innerHTML = list.map(t => {
           const isRec = t.tipo === 'receita';
           return `
           <div class="flex items-center justify-between p-4 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all group">
              <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-2xl ${isRec ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-rose-50 text-rose-600 border border-rose-100'} flex items-center justify-center shrink-0">
-                   <span class="material-icons-round text-xl">${icons[t.categoria] || 'circle'}</span>
-                </div>
-                <div>
-                   <p class="font-bold text-slate-800 text-sm md:text-base">${t.descricao}</p>
-                   <p class="text-[10px] md:text-xs text-slate-400 font-bold uppercase tracking-wider">${t.categoria} • ${t.data}</p>
-                </div>
+                <div class="w-12 h-12 rounded-2xl ${isRec ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-rose-50 text-rose-600 border border-rose-100'} flex items-center justify-center shrink-0"><span class="material-icons-round text-xl">${icons[t.categoria] || 'circle'}</span></div>
+                <div><p class="font-bold text-slate-800 text-sm md:text-base">${t.descricao}</p><p class="text-[10px] md:text-xs text-slate-400 font-bold uppercase tracking-wider">${t.categoria} • ${t.data}</p></div>
              </div>
              <div class="text-right">
                 <p class="font-bold text-sm md:text-base ${isRec ? 'text-emerald-600' : 'text-slate-900'}">${isRec ? '+' : '-'} R$ ${t.valor.toLocaleString('pt-BR', {minimumFractionDigits:2})}</p>
@@ -487,31 +395,98 @@
     }
 
     function deletar(id) {
-       if(confirm('Tem certeza que deseja apagar?')) {
+       if(confirm('Tem certeza?')) {
           transacoes = transacoes.filter(t => t.id !== id);
-          localStorage.setItem('financas_db_v3', JSON.stringify(transacoes));
+          localStorage.setItem('financas_db_v6', JSON.stringify(transacoes));
           atualizarUI();
        }
     }
 
-    function abrirExtrato() {
-       document.getElementById('telaPrincipal').classList.add('hidden');
-       document.getElementById('telaExtrato').classList.remove('hidden');
-    }
-    
-    function voltarParaPrincipal() {
-       document.getElementById('telaExtrato').classList.add('hidden');
-       document.getElementById('telaPrincipal').classList.remove('hidden');
-    }
+    function abrirExtrato() { document.getElementById('telaPrincipal').classList.add('hidden'); document.getElementById('telaExtrato').classList.remove('hidden'); }
+    function voltarParaPrincipal() { document.getElementById('telaExtrato').classList.add('hidden'); document.getElementById('telaPrincipal').classList.remove('hidden'); }
 
     function filtrarExtrato(tipo) {
-       document.querySelectorAll('.filter-btn').forEach(b => {
-          b.className = 'filter-btn px-5 py-2.5 rounded-full text-sm font-bold bg-slate-100 text-slate-500 hover:bg-slate-200 transition-all shrink-0';
-       });
+       document.querySelectorAll('.filter-btn').forEach(b => { b.className = 'filter-btn px-5 py-2.5 rounded-full text-sm font-bold bg-slate-100 text-slate-500 hover:bg-slate-200 transition-all shrink-0'; });
        event.target.className = 'filter-btn px-5 py-2.5 rounded-full text-sm font-bold bg-brand-600 text-white shadow-lg shadow-brand-500/30 transition-all shrink-0';
-
        const lista = tipo === 'todos' ? transacoes : transacoes.filter(t => t.tipo === tipo);
        renderList('listaExtratoCompleto', lista.slice().reverse());
+    }
+
+    /* === OCR LÓGICA CORRIGIDA === */
+    function ativarCamera() { document.getElementById('inputCamera').click(); }
+
+    function processarImagem(input) {
+       if (input.files && input.files[0]) {
+          const loading = document.getElementById('ocrLoading');
+          const status = document.getElementById('ocrStatus');
+          loading.classList.remove('hidden');
+          loading.classList.add('flex');
+          
+          Tesseract.recognize(
+             input.files[0], 'por',
+             { logger: m => { if(m.status === 'recognizing text') status.innerText = `Lendo Nota: ${Math.round(m.progress * 100)}%`; } }
+          ).then(({ data: { text } }) => {
+             console.log("Texto OCR:", text);
+             extrairValor(text);
+             loading.classList.add('hidden');
+             loading.classList.remove('flex');
+          }).catch(err => {
+             alert('Erro ao ler. Tente com mais luz.');
+             loading.classList.add('hidden');
+             loading.classList.remove('flex');
+          });
+       }
+    }
+
+    function extrairValor(texto) {
+      // Limpa linhas vazias
+      const linhas = texto.split('\n').filter(l => l.trim().length > 0);
+      
+      // REGEX RÍGIDA: Exige vírgula e 2 casas decimais (ex: 5,50 ou 1.000,00)
+      // Ignora 100, 2014, 01.01.00
+      const regexMoeda = /(\d{1,3}(?:\.?\d{3})*,\d{2})/g;
+      
+      const keywords = ['TOTAL', 'VALOR A PAGAR', 'A PAGAR', 'VLR'];
+      let valorEncontrado = 0;
+
+      // 1. Busca na mesma linha de "TOTAL"
+      for (let linha of linhas) {
+         const linhaUpper = linha.toUpperCase();
+         if (keywords.some(k => linhaUpper.includes(k))) {
+            const matches = [...linha.matchAll(regexMoeda)];
+            if (matches.length > 0) {
+               // Pega o último match da linha (normalmente o total está à direita)
+               const valorStr = matches[matches.length - 1][0];
+               valorEncontrado = parseMoeda(valorStr);
+               break; 
+            }
+         }
+      }
+
+      // 2. Fallback: Se não achou na linha do total, pega o maior valor válido do texto
+      // Mas ignora valores absurdamente altos (erros)
+      if (valorEncontrado === 0) {
+         const matchesGerais = [...texto.matchAll(regexMoeda)];
+         if(matchesGerais.length > 0) {
+            const valores = matchesGerais.map(m => parseMoeda(m[0]));
+            // Filtra valores > 50.000 pra evitar erros bizarros de OCR
+            const max = Math.max(...valores.filter(v => v < 50000));
+            if (max > 0) valorEncontrado = max;
+         }
+      }
+
+      if (valorEncontrado > 0) {
+         document.getElementById('valorTransacao').value = valorEncontrado.toFixed(2);
+         document.getElementById('descricaoTransacao').value = "Compra (Nota Fiscal)";
+         alert(`Valor identificado: R$ ${valorEncontrado.toFixed(2)}`);
+      } else {
+         alert("Não foi possível identificar o valor 'R$ X,XX' na nota. Tente novamente.");
+      }
+    }
+
+    function parseMoeda(str) {
+       // Remove pontos de milhar e troca vírgula por ponto
+       return parseFloat(str.replace(/\./g, '').replace(',', '.'));
     }
   </script>
 </body>
