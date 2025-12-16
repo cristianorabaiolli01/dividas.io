@@ -2,1788 +2,504 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MinhasEconomias - Controle Financeiro Inteligente</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>MinhasEconomias - Responsivo Pro</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
+
   <script>
     tailwind.config = {
       theme: {
         extend: {
+          fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
           colors: {
-            primary: {
-              50: '#f0f9ff',
-              100: '#e0f2fe',
-              500: '#0ea5e9',
-              600: '#0284c7',
-              700: '#0369a1',
-              900: '#0c4a6e'
-            },
-            accent: {
-              500: '#8b5cf6',
-              600: '#7c3aed'
-            },
-            success: '#10b981',
-            warning: '#f59e0b',
-            danger: '#ef4444'
-          },
-          fontFamily: {
-            'display': ['Inter', 'system-ui', 'sans-serif'],
-            'body': ['Inter', 'system-ui', 'sans-serif']
-          },
-          animation: {
-            'fade-in': 'fadeIn 0.5s ease-in-out',
-            'slide-up': 'slideUp 0.3s ease-out',
-            'pulse-soft': 'pulseSoft 2s infinite',
-            'bounce-soft': 'bounceSoft 0.6s ease-out'
+            brand: { 50: '#eef2ff', 100: '#e0e7ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 900: '#312e81' }
           }
         }
       }
     }
   </script>
+
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    body { -webkit-tap-highlight-color: transparent; background-color: #f8fafc; }
+    .glass-card { background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%); box-shadow: 0 10px 30px -5px rgba(79, 70, 229, 0.4); }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* --- LÓGICA DO MODAL RESPONSIVO (O Segredo está aqui) --- */
     
-    html, body { 
-      height: 100%; 
-      margin: 0; 
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-
-    .glass-effect {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .card-hover {
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .card-hover:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    }
-
-    .menu-item {
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .menu-item::before {
-      content: '';
+    /* Padrão (Mobile): Bottom Sheet (Gaveta) */
+    .modal-content {
       position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-      transition: left 0.5s;
-    }
-
-    .menu-item:hover::before {
-      left: 100%;
-    }
-
-    .menu-item:hover {
-      transform: translateY(-2px) scale(1.02);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-    }
-
-    .gradient-text {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .balance-card {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .balance-card::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      right: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-      animation: rotate 20s linear infinite;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes slideUp {
-      from { transform: translateY(100%); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-
-    @keyframes pulseSoft {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-    }
-
-    @keyframes bounceSoft {
-      0%, 20%, 53%, 80%, 100% { transform: translateY(0); }
-      40%, 43% { transform: translateY(-10px); }
-      70% { transform: translateY(-5px); }
-      90% { transform: translateY(-2px); }
-    }
-
-    @keyframes rotate {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-
-    .floating-action {
-      position: fixed;
-      bottom: 90px;
-      right: 20px;
-      z-index: 50;
-      animation: bounce-soft 2s infinite;
-    }
-
-    .nav-item {
-      transition: all 0.2s ease;
-      position: relative;
-    }
-
-    .nav-item.active {
-      color: #0ea5e9;
-    }
-
-    .nav-item.active::after {
-      content: '';
-      position: absolute;
-      top: -2px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 4px;
-      height: 4px;
-      background: #0ea5e9;
-      border-radius: 50%;
-    }
-
-    .transaction-item {
-      transition: all 0.2s ease;
-      border-left: 4px solid transparent;
-    }
-
-    .transaction-item:hover {
-      border-left-color: #0ea5e9;
-      background: #f8fafc;
-    }
-
-    .stats-card {
-      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-      border: 1px solid rgba(203, 213, 225, 0.5);
-    }
-
-    /* Estilos customizados para o extrato */
-    .custom-scrollbar {
-      scrollbar-width: thin;
-      scrollbar-color: rgba(59, 130, 246, 0.5) rgba(229, 231, 235, 0.3);
-    }
-
-    .custom-scrollbar::-webkit-scrollbar {
-      width: 8px;
-    }
-
-    .custom-scrollbar::-webkit-scrollbar-track {
-      background: rgba(229, 231, 235, 0.3);
-      border-radius: 10px;
-    }
-
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-      background: linear-gradient(135deg, rgba(59, 130, 246, 0.6), rgba(147, 51, 234, 0.6));
-      border-radius: 10px;
-      border: 2px solid transparent;
-      background-clip: content-box;
-    }
-
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-      background: linear-gradient(135deg, rgba(59, 130, 246, 0.8), rgba(147, 51, 234, 0.8));
-      background-clip: content-box;
-    }
-
-    .extrato-card-hover {
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .extrato-card-hover::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-      transition: left 0.6s;
-    }
-
-    .extrato-card-hover:hover::before {
-      left: 100%;
-    }
-
-    .extrato-card-hover:hover {
-      transform: translateY(-3px) scale(1.02);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-    }
-
-    .progress-bar {
-      background: linear-gradient(90deg, #f3f4f6, #e5e7eb);
-      border-radius: 10px;
-      overflow: hidden;
-      position: relative;
-    }
-
-    .progress-fill {
-      height: 8px;
-      background: linear-gradient(90deg, #f59e0b, #d97706);
-      border-radius: 10px;
-      transition: width 1s ease-in-out;
-      position: relative;
-    }
-
-    .progress-fill::after {
-      content: '';
-      position: absolute;
-      top: 0;
+      bottom: 0;
       left: 0;
       right: 0;
-      bottom: 0;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-      animation: shimmer 2s infinite;
-    }
-
-    @keyframes shimmer {
-      0% { transform: translateX(-100%); }
-      100% { transform: translateX(100%); }
-    }
-
-    /* Design Lindo e Moderno - UX Premium */
-    .beautiful-card {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      border-radius: 24px;
-      box-shadow: 
-        0 8px 32px rgba(0, 0, 0, 0.08),
-        0 1px 0 rgba(255, 255, 255, 0.5) inset,
-        0 0 0 1px rgba(255, 255, 255, 0.05) inset;
-      transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .beautiful-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
+      border-top-left-radius: 2rem;
+      border-top-right-radius: 2rem;
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+      transform: translateY(100%); /* Escondido para baixo */
       width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-      transition: left 0.5s;
+      max-width: 100%;
+    }
+    
+    .modal-open .modal-content {
+      transform: translateY(0);
     }
 
-    .beautiful-card:hover::before {
-      left: 100%;
-    }
+    /* Desktop (md): Center Dialog (Janela Central) */
+    @media (min-width: 768px) {
+      .modal-content {
+        position: relative;
+        bottom: auto;
+        left: auto;
+        right: auto;
+        border-radius: 1.5rem;
+        transform: scale(0.95); /* Começa levemente menor */
+        opacity: 0;
+        width: 100%;
+        max-width: 450px;
+        margin: auto;
+      }
+      
+      .modal-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
 
-    .beautiful-card:hover {
-      transform: translateY(-8px) scale(1.02);
-      box-shadow: 
-        0 20px 40px rgba(0, 0, 0, 0.15),
-        0 1px 0 rgba(255, 255, 255, 0.6) inset,
-        0 0 0 1px rgba(255, 255, 255, 0.1) inset;
-    }
-
-    .stunning-gradient {
-      background: linear-gradient(135deg, 
-        #667eea 0%, 
-        #764ba2 20%, 
-        #f093fb 40%, 
-        #f5576c 60%, 
-        #4facfe 80%, 
-        #00f2fe 100%);
-      background-size: 200% 200%;
-      animation: gradientDance 8s ease infinite;
-    }
-
-    @keyframes gradientDance {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-
-    .emerald-gradient {
-      background: linear-gradient(135deg, #059669 0%, #10b981 50%, #6ee7b7 100%);
-    }
-
-    .sunset-gradient {
-      background: linear-gradient(135deg, #f59e0b 0%, #f97316 50%, #ef4444 100%);
-    }
-
-    .ocean-gradient {
-      background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 50%, #8b5cf6 100%);
-    }
-
-    .premium-text {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      font-weight: 700;
-    }
-
-    .glass-effect {
-      background: rgba(255, 255, 255, 0.25);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-    }
-
-    .floating-animation {
-      animation: gentleFloat 6s ease-in-out infinite;
-    }
-
-    @keyframes gentleFloat {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-8px); }
-    }
-
-    .pulse-glow {
-      animation: softPulse 3s ease-in-out infinite;
-    }
-
-    @keyframes softPulse {
-      0%, 100% { 
-        box-shadow: 0 0 20px rgba(102, 126, 234, 0.4);
+      .modal-open .modal-content {
         transform: scale(1);
-      }
-      50% { 
-        box-shadow: 0 0 30px rgba(102, 126, 234, 0.6);
-        transform: scale(1.05);
+        opacity: 1;
       }
     }
-
-    .text-shimmer {
-      background: linear-gradient(45deg, #667eea, #764ba2, #f093fb, #667eea);
-      background-size: 300% 300%;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      animation: shimmerText 3s ease-in-out infinite;
-    }
-
-    @keyframes shimmerText {
-      0%, 100% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-    }
-
-    .modern-shadow {
-      box-shadow: 
-        0 10px 25px -5px rgba(0, 0, 0, 0.1),
-        0 8px 10px -6px rgba(0, 0, 0, 0.1);
-    }
-
-    .modern-shadow-xl {
-      box-shadow: 
-        0 25px 50px -12px rgba(0, 0, 0, 0.25),
-        0 0 0 1px rgba(255, 255, 255, 0.05) inset;
-    }
-
-    /* Design Limpo e Elegante */
-    .clean-card {
-      background: #ffffff;
-      border: 1px solid #e5e7eb;
-      border-radius: 12px;
-      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-      transition: all 0.2s ease;
-    }
-
-    .clean-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    }
-
-    .simple-gradient {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-
-    .green-gradient {
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    }
-
-    .red-gradient {
-      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-    }
-
-    .blue-gradient {
-      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-    }
-
-    .elegant-text {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .soft-shadow {
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    }
-
-    .clean-hover {
-      transition: all 0.2s ease;
-    }
-
-    .clean-hover:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px -1px rgba(0, 0, 0, 0.15);
-    }
-
-
   </style>
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
 </head>
-<body class="min-h-screen flex flex-col font-body">
+<body class="text-slate-800 antialiased h-screen flex overflow-hidden">
 
-  <!-- TELA DE LOGIN -->
-  <div id="loginTela" class="min-h-screen flex items-center justify-center p-4">
-    <div class="w-full max-w-md">
-      <!-- Logo e Título -->
-      <div class="text-center mb-8 animate-fade-in">
-        <div class="inline-flex items-center justify-center w-20 h-20 bg-white rounded-full shadow-lg mb-4">
-          <span class="material-icons text-4xl gradient-text">account_balance_wallet</span>
+  <div id="loginTela" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-50">
+    <div class="w-full max-w-sm bg-white rounded-3xl shadow-xl p-8 border border-slate-100">
+      <div class="text-center mb-8">
+        <div class="w-16 h-16 bg-brand-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg mb-4 rotate-3">
+          <span class="material-icons-round text-white text-3xl">account_balance_wallet</span>
         </div>
-        <h1 class="text-3xl font-bold text-white mb-2">MinhasEconomias</h1>
-        <p class="text-blue-100 text-lg">Controle Financeiro Inteligente</p>
+        <h1 class="text-2xl font-bold text-slate-900">MinhasEconomias</h1>
+        <p class="text-slate-500 text-sm">Entre com <b>admin</b> / <b>1234</b></p>
       </div>
-
-      <!-- Card de Login -->
-      <div class="glass-effect rounded-3xl p-8 shadow-2xl animate-slide-up">
-        <div class="space-y-6">
-          <div class="text-center">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-2">Bem-vindo de volta!</h2>
-            <p class="text-gray-600">Entre para acessar suas finanças</p>
-          </div>
-          
-          <div class="space-y-4">
-            <div class="relative">
-              <span class="material-icons absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">person</span>
-              <input id="usuario" type="text" placeholder="Usuário" 
-                class="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200" />
-            </div>
-            
-            <div class="relative">
-              <span class="material-icons absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">lock</span>
-              <input id="senha" type="password" placeholder="Senha" 
-                class="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200" />
-            </div>
-            
-            <button onclick="fazerLogin()" 
-              class="w-full bg-gradient-to-r from-primary-500 to-accent-500 text-white py-4 rounded-2xl font-semibold text-lg hover:from-primary-600 hover:to-accent-600 transform hover:scale-105 transition-all duration-200 shadow-lg">
-              Entrar
-            </button>
-          </div>
-          
-          <p id="erroLogin" class="text-danger text-sm text-center hidden animate-bounce-soft">
-            ⚠️ Usuário ou senha inválidos
-          </p>
-        </div>
-      </div>
-
-      <!-- Dica de Login -->
-      <div class="text-center mt-6 text-white/80 text-sm">
-        <p>💡 Dica: Use <strong>admin</strong> / <strong>1234</strong> para testar</p>
+      <div class="space-y-4">
+        <input id="usuario" type="text" value="admin" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 focus:ring-2 focus:ring-brand-500 outline-none" placeholder="Usuário">
+        <input id="senha" type="password" value="1234" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 focus:ring-2 focus:ring-brand-500 outline-none" placeholder="Senha">
+        <button onclick="fazerLogin()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-4 rounded-xl shadow-lg transition-transform active:scale-95">Entrar</button>
+        <p id="erroLogin" class="text-red-500 text-sm text-center hidden">Dados incorretos.</p>
       </div>
     </div>
   </div>
 
-  <!-- APLICATIVO -->
-  <div id="appTela" class="hidden min-h-screen bg-gray-50">
-    
-        <!-- TELA PRINCIPAL -->
-    <div id="telaPrincipal">
-        <!-- Header Limpo -->
-        <header class="clean-card mx-4 sm:mx-6 mt-4 sm:mt-6">
-      <div class="p-4 sm:p-6">
-        <div class="flex justify-between items-center">
-          <div class="flex items-center space-x-3 sm:space-x-4">
-            <div class="simple-gradient p-3 sm:p-4 rounded-xl soft-shadow">
-              <span class="material-icons text-white text-xl sm:text-2xl">account_balance_wallet</span>
-            </div>
-            <div>
-              <h1 class="text-xl sm:text-3xl font-bold elegant-text">
-                MinhasEconomias
-              </h1>
-              <p class="text-gray-600 text-xs sm:text-sm font-medium flex items-center space-x-2">
-                <span class="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full"></span>
-                <span class="hidden sm:inline">Gestão Financeira Inteligente</span>
-                <span class="sm:hidden">Gestão Financeira</span>
-              </p>
-            </div>
-          </div>
-          <button onclick="logout()" 
-            class="clean-card text-gray-700 px-3 py-2 sm:px-6 sm:py-3 clean-hover flex items-center space-x-1 sm:space-x-2 group">
-            <span class="material-icons text-base sm:text-lg">logout</span>
-            <span class="font-medium text-sm sm:text-base hidden sm:inline">Sair</span>
-          </button>
-        </div>
-      </div>
-    </header>
-
-                <main class="px-4 sm:px-6 py-6 sm:py-8 pb-24">
-          <div class="space-y-8 sm:space-y-12">
-      <!-- Card de Saldo Limpo -->
-      <section class="clean-card p-0 clean-hover overflow-hidden">
-        <div class="simple-gradient rounded-xl p-6 sm:p-8 text-white">
-          <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-6 sm:mb-8">
-            <div class="mb-4 sm:mb-0">
-              <p class="text-white/80 text-xs sm:text-sm font-medium mb-2">Saldo Total</p>
-              <h2 class="text-2xl sm:text-4xl font-bold mb-2">
-                R$ <span id="saldoTotal">0.00</span>
-              </h2>
-              <p class="text-white/70 text-xs sm:text-sm">Patrimônio atualizado</p>
-            </div>
-            <div class="bg-white/20 p-2 sm:p-3 rounded-xl self-end sm:self-auto">
-              <span class="material-icons text-xl sm:text-2xl">savings</span>
-            </div>
-          </div>
-          
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-            <div class="bg-white/15 rounded-xl p-4 sm:p-6 clean-hover">
-              <div class="flex items-center justify-between mb-3 sm:mb-4">
-                <div class="green-gradient p-2 sm:p-3 rounded-lg">
-                  <span class="material-icons text-white text-sm sm:text-base">trending_up</span>
-                </div>
-                <div class="flex items-center space-x-2">
-                  <span class="text-xl sm:text-2xl">💰</span>
-                  <button onclick="excluirTodasReceitas()" 
-                    class="opacity-0 group-hover:opacity-100 bg-red-500 hover:bg-red-600 text-white p-1.5 sm:p-2 rounded-lg transition-all duration-300"
-                    title="Excluir todas as receitas">
-                    <span class="material-icons text-xs sm:text-sm">clear_all</span>
-                  </button>
-                </div>
-              </div>
-              <p class="text-white/90 text-xs sm:text-sm font-medium mb-2">Receitas</p>
-              <p class="text-lg sm:text-2xl font-bold">R$ <span id="receitasMes">0.00</span></p>
-              <p class="text-white/70 text-xs mt-1">Entradas do mês</p>
-            </div>
-            <div class="bg-white/15 rounded-xl p-4 sm:p-6 clean-hover">
-              <div class="flex items-center justify-between mb-3 sm:mb-4">
-                <div class="red-gradient p-2 sm:p-3 rounded-lg">
-                  <span class="material-icons text-white text-sm sm:text-base">trending_down</span>
-                </div>
-                <span class="text-xl sm:text-2xl">💸</span>
-              </div>
-              <p class="text-white/90 text-xs sm:text-sm font-medium mb-2">Gastos</p>
-              <p class="text-lg sm:text-2xl font-bold">R$ <span id="gastosMes">0.00</span></p>
-              <p class="text-white/70 text-xs mt-1">Saídas do mês</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-            <!-- Menu de Ações Rápidas -->
-      <section>
-        <div class="flex items-center space-x-3 mb-4 sm:mb-6">
-          <div class="simple-gradient p-2 sm:p-3 rounded-xl soft-shadow">
-            <span class="material-icons text-white text-lg sm:text-xl">flash_on</span>
-          </div>
-          <div>
-            <h3 class="text-lg sm:text-2xl font-bold elegant-text">Ações Rápidas</h3>
-            <p class="text-gray-600 text-xs sm:text-sm">Gerencie suas finanças</p>
-          </div>
-        </div>
-        
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          <button onclick="abrirModalTransacao('receita')" class="clean-card p-6 sm:p-8 text-left clean-hover group">
-            <div class="flex items-center justify-between mb-3 sm:mb-4">
-              <div class="green-gradient p-3 sm:p-4 rounded-xl soft-shadow">
-                <span class="material-icons text-white text-lg sm:text-xl">trending_up</span>
-              </div>
-              <span class="text-2xl sm:text-3xl">💰</span>
-            </div>
-            <h4 class="font-bold text-lg sm:text-xl text-gray-900 mb-1 sm:mb-2">Adicionar Receita</h4>
-            <p class="text-gray-600 text-sm sm:text-base">Registre suas entradas</p>
-          </button>
-          
-          <button onclick="abrirModalTransacao('despesa')" class="clean-card p-6 sm:p-8 text-left clean-hover group">
-            <div class="flex items-center justify-between mb-3 sm:mb-4">
-              <div class="red-gradient p-3 sm:p-4 rounded-xl soft-shadow">
-                <span class="material-icons text-white text-lg sm:text-xl">trending_down</span>
-              </div>
-              <span class="text-2xl sm:text-3xl">💸</span>
-            </div>
-            <h4 class="font-bold text-lg sm:text-xl text-gray-900 mb-1 sm:mb-2">Adicionar Gasto</h4>
-            <p class="text-gray-600 text-sm sm:text-base">Registre suas saídas</p>
-          </button>
-          
-          <button onclick="abrirExtrato()" class="clean-card p-6 sm:p-8 text-left clean-hover group sm:col-span-2 lg:col-span-1">
-            <div class="flex items-center justify-between mb-3 sm:mb-4">
-              <div class="blue-gradient p-3 sm:p-4 rounded-xl soft-shadow">
-                <span class="material-icons text-white text-lg sm:text-xl">receipt_long</span>
-              </div>
-              <span class="text-2xl sm:text-3xl">📊</span>
-            </div>
-            <h4 class="font-bold text-lg sm:text-xl text-gray-900 mb-1 sm:mb-2">Ver Extrato</h4>
-            <p class="text-gray-600 text-sm sm:text-base">Analise seu histórico</p>
-          </button>
-        </div>
-      </section>
-
-            <!-- Estatísticas do Mês -->
-      <section>
-        <div class="flex items-center space-x-3 mb-4 sm:mb-6">
-          <div class="simple-gradient p-2 sm:p-3 rounded-xl soft-shadow">
-            <span class="material-icons text-white text-lg sm:text-xl">analytics</span>
-          </div>
-          <div>
-            <h3 class="text-lg sm:text-2xl font-bold elegant-text">Resumo do Mês</h3>
-            <p class="text-gray-600 text-xs sm:text-sm">Acompanhe seu progresso</p>
-          </div>
-        </div>
-        
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-          <div class="clean-card p-4 sm:p-6 clean-hover">
-            <div class="flex items-center justify-between mb-3 sm:mb-4">
-              <div class="simple-gradient p-2 sm:p-3 rounded-xl text-white">
-                <span class="material-icons text-lg sm:text-xl">savings</span>
-              </div>
-              <span class="text-xl sm:text-2xl">🎯</span>
-            </div>
-            <h4 class="font-bold text-base sm:text-lg text-gray-900 mb-1 sm:mb-2">Meta de Economia</h4>
-            <p class="text-gray-600 text-xs sm:text-sm mb-3 sm:mb-4">Objetivo mensal</p>
-            <div class="bg-gray-200 rounded-full h-2 mb-2 sm:mb-3">
-              <div class="simple-gradient h-full rounded-full" style="width: 65%"></div>
-            </div>
-            <div class="flex justify-between items-center text-xs sm:text-sm">
-              <span class="text-gray-900 font-semibold">R$ 650,00</span>
-              <span class="text-gray-600">65%</span>
-            </div>
-          </div>
-
-          <div class="clean-card p-4 sm:p-6 clean-hover">
-            <div class="flex items-center justify-between mb-3 sm:mb-4">
-              <div class="simple-gradient p-2 sm:p-3 rounded-xl text-white">
-                <span class="material-icons text-lg sm:text-xl">receipt_long</span>
-              </div>
-              <span class="text-xl sm:text-2xl">📊</span>
-            </div>
-            <h4 class="font-bold text-base sm:text-lg text-gray-900 mb-1 sm:mb-2">Transações</h4>
-            <p class="text-gray-600 text-xs sm:text-sm mb-3 sm:mb-4">Total este mês</p>
-            <div class="flex justify-between items-center">
-              <span class="text-gray-700 text-xs sm:text-sm font-medium">Registros</span>
-              <span class="text-xl sm:text-2xl font-bold text-gray-900" id="totalTransacoes">0</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Últimas Transações -->
-      <section>
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6">
-          <div class="flex items-center space-x-3 mb-3 sm:mb-0">
-            <div class="simple-gradient p-2 sm:p-3 rounded-xl soft-shadow">
-              <span class="material-icons text-white text-lg sm:text-xl">history</span>
-            </div>
-            <div>
-              <h3 class="text-lg sm:text-2xl font-bold elegant-text">Últimas Transações</h3>
-              <p class="text-gray-600 text-xs sm:text-sm">Atividade recente</p>
-            </div>
-          </div>
-          <button onclick="abrirExtrato()" class="simple-gradient text-white px-4 py-2 sm:px-6 sm:py-3 rounded-xl font-medium transition-all duration-300 flex items-center space-x-2 soft-shadow clean-hover text-sm sm:text-base">
-            <span>Ver todas</span>
-            <span class="material-icons text-base sm:text-lg">arrow_forward</span>
-          </button>
-        </div>
-        
-        <div class="clean-card rounded-xl overflow-hidden">
-          <div id="listaTransacoes" class="divide-y divide-gray-100">
-            <!-- Transações serão inseridas aqui dinamicamente -->
-            <div class="p-6 sm:p-8 text-center">
-              <div class="simple-gradient w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
-                <span class="material-icons text-xl sm:text-2xl text-white">receipt_long</span>
-              </div>
-              <h4 class="text-lg sm:text-xl font-bold text-gray-800 mb-2">Nenhuma transação registrada</h4>
-              <p class="text-gray-600 mb-4 sm:mb-6 text-sm sm:text-base">Adicione sua primeira transação para começar a acompanhar suas finanças!</p>
-              <div class="flex flex-col gap-3 sm:flex-row sm:gap-4 justify-center">
-                <button onclick="abrirModalTransacao('receita')" class="green-gradient text-white px-4 py-2 sm:px-6 sm:py-3 rounded-xl font-medium soft-shadow clean-hover flex items-center space-x-2 text-sm sm:text-base">
-                  <span class="material-icons text-sm sm:text-base">trending_up</span>
-                  <span>Adicionar Receita</span>
-                </button>
-                <button onclick="abrirModalTransacao('despesa')" class="red-gradient text-white px-4 py-2 sm:px-6 sm:py-3 rounded-xl font-medium soft-shadow clean-hover flex items-center space-x-2 text-sm sm:text-base">
-                  <span class="material-icons text-sm sm:text-base">trending_down</span>
-                  <span>Adicionar Despesa</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Dicas Financeiras -->
-      <section>
-        <div class="clean-card simple-gradient p-6 sm:p-8 text-white">
-          <div class="flex items-start space-x-3 sm:space-x-4">
-            <div class="bg-white/20 p-2 sm:p-3 rounded-xl flex-shrink-0">
-              <span class="material-icons text-lg sm:text-2xl">lightbulb</span>
-            </div>
-            <div class="flex-1">
-              <h4 class="font-bold text-base sm:text-xl mb-2 flex items-center space-x-2">
-                <span>💡</span>
-                <span>Dica do Dia</span>
-              </h4>
-              <p class="text-white/90 text-xs sm:text-sm leading-relaxed">
-                Que tal definir uma meta de economia para este mês? Economizar 20% da sua renda pode fazer uma grande diferença no futuro!
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-          </div>
-    </main>
+  <aside id="sidebar" class="hidden md:flex flex-col w-72 bg-white border-r border-slate-200 h-full">
+    <div class="p-8">
+       <div class="flex items-center gap-3 text-brand-700">
+          <span class="material-icons-round text-3xl">account_balance_wallet</span>
+          <h1 class="font-bold text-xl tracking-tight">MinhasEcon.</h1>
+       </div>
     </div>
 
-    <!-- TELA DE EXTRATO -->
-    <div id="telaExtrato" class="hidden min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50">
-      <!-- Header do Extrato -->
-      <header class="bg-gradient-to-r from-white via-blue-50 to-purple-50 shadow-xl border-b border-gray-200/50 backdrop-blur-sm">
-        <div class="px-4 py-8">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-4">
-              <button onclick="voltarParaPrincipal()" class="bg-white   p-3 rounded-2xl shadow-lg transform hover:scale-105">
-                <span class="material-icons text-primary-600 text-xl">arrow_back</span>
-              </button>
-              <div>
-                <h1 class="text-3xl font-bold liquid-text">
-                  📊 Extrato Completo
-                </h1>
-                <p class="text-gray-600 text-base mt-1 font-medium">Análise detalhada das suas finanças</p>
+    <nav class="flex-1 px-4 space-y-2">
+       <button onclick="mostrarTela('dashboard')" class="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl bg-brand-50 text-brand-700 font-bold transition-all">
+          <span class="material-icons-round">dashboard</span> Dashboard
+       </button>
+       <button onclick="abrirExtrato()" class="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 font-medium transition-all">
+          <span class="material-icons-round">receipt_long</span> Extrato Detalhado
+       </button>
+       <div class="pt-4 pb-2 px-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Conta</div>
+       <button class="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 font-medium transition-all">
+          <span class="material-icons-round">person</span> Perfil
+       </button>
+       <button class="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 font-medium transition-all">
+          <span class="material-icons-round">settings</span> Configurações
+       </button>
+    </nav>
+
+    <div class="p-4 border-t border-slate-100">
+       <button onclick="logout()" class="w-full flex items-center gap-2 text-slate-400 hover:text-red-500 px-4 py-2 text-sm font-medium transition-colors">
+          <span class="material-icons-round">logout</span> Sair do sistema
+       </button>
+    </div>
+  </aside>
+
+  <main id="appContent" class="hidden flex-1 flex-col h-full relative bg-slate-50/50">
+    
+    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-20 px-6 py-4 flex justify-between items-center border-b border-slate-200">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-gradient-to-br from-brand-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold shadow-md">
+          A
+        </div>
+        <div>
+          <p class="text-xs text-slate-500 font-medium">Bem-vindo,</p>
+          <h2 class="text-slate-900 font-bold leading-none">Administrador</h2>
+        </div>
+      </div>
+
+      <div class="hidden md:flex gap-3">
+         <button onclick="abrirModalTransacao('receita')" class="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold shadow-sm transition-all hover:-translate-y-0.5">
+            <span class="material-icons-round text-sm">arrow_upward</span> Nova Receita
+         </button>
+         <button onclick="abrirModalTransacao('despesa')" class="flex items-center gap-2 bg-rose-500 hover:bg-rose-600 text-white px-5 py-2.5 rounded-xl font-bold shadow-sm transition-all hover:-translate-y-0.5">
+            <span class="material-icons-round text-sm">arrow_downward</span> Nova Despesa
+         </button>
+      </div>
+
+      <button onclick="logout()" class="md:hidden w-10 h-10 flex items-center justify-center text-slate-400">
+         <span class="material-icons-round">logout</span>
+      </button>
+    </header>
+
+    <div class="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-8 scroll-smooth" id="scrollContainer">
+      
+      <div id="telaPrincipal" class="max-w-7xl mx-auto transition-opacity duration-300">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+           
+           <div class="lg:col-span-2 space-y-6">
+              <section class="glass-card rounded-[2rem] p-6 md:p-10 text-white relative overflow-hidden transition-transform hover:scale-[1.01] duration-500">
+                <div class="absolute -right-10 -top-10 w-64 h-64 bg-white opacity-10 rounded-full blur-3xl pointer-events-none"></div>
+                
+                <div class="relative z-10">
+                  <p class="text-brand-100 text-sm font-medium mb-2 uppercase tracking-wide opacity-80">Saldo Disponível</p>
+                  <h1 class="text-4xl md:text-6xl font-bold tracking-tight mb-8">R$ <span id="saldoTotal">0,00</span></h1>
+                  
+                  <div class="grid grid-cols-2 gap-4">
+                     <div class="bg-black/20 p-4 rounded-2xl backdrop-blur-md border border-white/10">
+                        <div class="flex items-center gap-2 mb-1 text-emerald-300">
+                           <span class="material-icons-round text-sm bg-emerald-500/20 p-1 rounded-full">arrow_upward</span>
+                           <span class="text-xs font-bold uppercase">Entradas</span>
+                        </div>
+                        <p class="font-bold text-lg md:text-xl">R$ <span id="receitasMes">0,00</span></p>
+                     </div>
+                     <div class="bg-black/20 p-4 rounded-2xl backdrop-blur-md border border-white/10">
+                        <div class="flex items-center gap-2 mb-1 text-rose-300">
+                           <span class="material-icons-round text-sm bg-rose-500/20 p-1 rounded-full">arrow_downward</span>
+                           <span class="text-xs font-bold uppercase">Saídas</span>
+                        </div>
+                        <p class="font-bold text-lg md:text-xl">R$ <span id="gastosMes">0,00</span></p>
+                     </div>
+                  </div>
+                </div>
+              </section>
+
+              <section class="md:hidden">
+                 <h3 class="text-slate-800 font-bold text-lg mb-4 ml-1">Acesso Rápido</h3>
+                 <div class="grid grid-cols-4 gap-3">
+                    <button onclick="abrirModalTransacao('receita')" class="flex flex-col items-center gap-2 group active:scale-95 transition-transform">
+                      <div class="w-14 h-14 rounded-2xl bg-emerald-100 flex items-center justify-center text-emerald-600 shadow-sm"><span class="material-icons-round">add</span></div>
+                      <span class="text-[11px] font-bold text-slate-600">Entrada</span>
+                    </button>
+                    <button onclick="abrirModalTransacao('despesa')" class="flex flex-col items-center gap-2 group active:scale-95 transition-transform">
+                      <div class="w-14 h-14 rounded-2xl bg-rose-100 flex items-center justify-center text-rose-600 shadow-sm"><span class="material-icons-round">remove</span></div>
+                      <span class="text-[11px] font-bold text-slate-600">Saída</span>
+                    </button>
+                    <button onclick="abrirExtrato()" class="flex flex-col items-center gap-2 group active:scale-95 transition-transform">
+                      <div class="w-14 h-14 rounded-2xl bg-blue-100 flex items-center justify-center text-blue-600 shadow-sm"><span class="material-icons-round">receipt</span></div>
+                      <span class="text-[11px] font-bold text-slate-600">Extrato</span>
+                    </button>
+                    <button class="flex flex-col items-center gap-2 group active:scale-95 transition-transform opacity-50">
+                      <div class="w-14 h-14 rounded-2xl bg-purple-100 flex items-center justify-center text-purple-600 shadow-sm"><span class="material-icons-round">pie_chart</span></div>
+                      <span class="text-[11px] font-bold text-slate-600">Metas</span>
+                    </button>
+                 </div>
+              </section>
+           </div>
+
+           <div class="lg:col-span-1 flex flex-col h-full">
+              <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex-1 flex flex-col">
+                 <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-slate-800 font-bold text-lg">Histórico Recente</h3>
+                    <button onclick="abrirExtrato()" class="text-brand-600 text-xs font-bold uppercase hover:underline">Ver tudo</button>
+                 </div>
+                 <div id="listaTransacoes" class="flex-1 space-y-3 overflow-y-auto max-h-[400px] lg:max-h-full no-scrollbar pr-2">
+                    </div>
               </div>
+           </div>
+        </div>
+      </div>
+
+      <div id="telaExtrato" class="hidden max-w-5xl mx-auto animate-fade-in">
+        <button onclick="voltarParaPrincipal()" class="mb-4 flex items-center gap-2 text-slate-500 hover:text-brand-600 font-bold transition-colors">
+           <span class="material-icons-round">arrow_back</span> Voltar para Dashboard
+        </button>
+        
+        <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 min-h-[500px]">
+           <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+              <h2 class="text-2xl font-bold text-slate-900">Extrato Completo</h2>
+              <div class="flex gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 no-scrollbar">
+                 <button onclick="filtrarExtrato('todos')" class="filter-btn active px-6 py-2 rounded-full text-sm font-bold bg-brand-600 text-white shadow-md transition-all">Todos</button>
+                 <button onclick="filtrarExtrato('receita')" class="filter-btn px-6 py-2 rounded-full text-sm font-bold bg-slate-100 text-slate-500 hover:bg-emerald-100 hover:text-emerald-700 transition-all">Entradas</button>
+                 <button onclick="filtrarExtrato('despesa')" class="filter-btn px-6 py-2 rounded-full text-sm font-bold bg-slate-100 text-slate-500 hover:bg-rose-100 hover:text-rose-700 transition-all">Saídas</button>
+              </div>
+           </div>
+           <div id="listaExtratoCompleto" class="space-y-2"></div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <button onclick="abrirModalTransacao('despesa')" class="md:hidden fixed bottom-24 right-6 w-14 h-14 bg-brand-600 text-white rounded-full shadow-xl shadow-brand-500/40 flex items-center justify-center active:scale-90 transition-transform z-40">
+    <span class="material-icons-round text-2xl">add</span>
+  </button>
+
+  <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-6 py-3 flex justify-between items-center z-30 pb-safe shadow-[0_-5px_20px_rgba(0,0,0,0.03)]">
+    <button onclick="voltarParaPrincipal()" class="flex flex-col items-center gap-1 text-brand-600 transition-transform active:scale-90">
+      <span class="material-icons-round text-2xl">home</span>
+    </button>
+    <button onclick="abrirExtrato()" class="flex flex-col items-center gap-1 text-slate-300 hover:text-brand-500 transition-transform active:scale-90">
+      <span class="material-icons-round text-2xl">receipt_long</span>
+    </button>
+    <button class="flex flex-col items-center gap-1 text-slate-300 hover:text-brand-500 transition-transform active:scale-90">
+      <span class="material-icons-round text-2xl">pie_chart</span>
+    </button>
+    <button class="flex flex-col items-center gap-1 text-slate-300 hover:text-brand-500 transition-transform active:scale-90">
+      <span class="material-icons-round text-2xl">settings</span>
+    </button>
+  </nav>
+
+  <div id="modalTransacao" class="fixed inset-0 z-[60] hidden modal-container transition-all duration-300">
+    
+    <div onclick="fecharModal()" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity opacity-0" id="modalBackdrop"></div>
+    
+    <div class="bg-white p-6 shadow-2xl transition-all duration-300 modal-content" id="modalContent">
+      
+      <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-6 md:hidden"></div>
+      
+      <div class="flex items-center justify-between mb-6">
+         <div class="flex items-center gap-3">
+            <div id="modalIconBg" class="w-12 h-12 rounded-2xl flex items-center justify-center transition-colors">
+               <span id="modalIcon" class="material-icons-round text-white text-xl"></span>
             </div>
-            <button onclick="exportarExtrato()" class="bg-gradient-to-r from-accent-500 to-primary-500   text-white px-6 py-3 rounded-2xl transition-all duration-300 flex items-center space-x-3 shadow-lg transform hover:scale-105">
-              <span class="material-icons text-lg">file_download</span>
-              <span class="font-semibold">Exportar CSV</span>
-            </button>
+            <div>
+               <p class="text-xs font-bold text-slate-400 uppercase tracking-wide">Nova Transação</p>
+               <h3 id="modalTitulo" class="text-xl font-bold text-slate-800 leading-none">Registrar</h3>
+            </div>
+         </div>
+         <button onclick="fecharModal()" class="hidden md:flex w-8 h-8 rounded-full bg-slate-100 items-center justify-center hover:bg-slate-200">
+            <span class="material-icons-round text-slate-500 text-sm">close</span>
+         </button>
+      </div>
+
+      <div class="space-y-5">
+        <div>
+          <label class="block text-xs font-bold text-slate-500 uppercase mb-2 ml-1">Valor</label>
+          <div class="relative">
+             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-lg">R$</span>
+             <input id="valorTransacao" type="number" step="0.01" inputmode="decimal" placeholder="0,00" 
+              class="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 pl-12 pr-4 text-3xl font-bold text-slate-800 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500/50 transition-all placeholder:text-slate-300">
           </div>
         </div>
-      </header>
 
-      <main class="flex-1 px-6 py-8 space-y-8 pb-24 relative z-10">
-        <!-- Resumo Financeiro -->
-        <section class="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in">
-          <!-- Card de Receitas -->
-          <div class="group bg-gradient-to-br from-green-50 to-emerald-100 rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-green-200/50 relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-200/30 to-emerald-300/30 rounded-full -mr-16 -mt-16"></div>
-            <div class="relative z-10">
-              <div class="flex items-center justify-between mb-4">
-                <div class="bg-gradient-to-br from-green-500 to-emerald-600 p-4 rounded-2xl shadow-lg transform group-hover:scale-110 transition-transform duration-300">
-                  <span class="material-icons text-white text-2xl">trending_up</span>
-                </div>
-                <div class="text-green-600/60 text-6xl font-light">💰</div>
-              </div>
-              <div>
-                <p class="text-green-700 text-sm font-semibold uppercase tracking-wide">Total de Receitas</p>
-                <p class="text-3xl font-bold text-green-800 mt-2">R$ <span id="extratoReceitas">0,00</span></p>
-                <p class="text-green-600 text-xs mt-1">📈 Entradas financeiras</p>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Card de Despesas -->
-          <div class="group bg-gradient-to-br from-red-50 to-rose-100 rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-red-200/50 relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-red-200/30 to-rose-300/30 rounded-full -mr-16 -mt-16"></div>
-            <div class="relative z-10">
-              <div class="flex items-center justify-between mb-4">
-                <div class="bg-gradient-to-br from-red-500 to-rose-600 p-4 rounded-2xl shadow-lg transform group-hover:scale-110 transition-transform duration-300">
-                  <span class="material-icons text-white text-2xl">trending_down</span>
-                </div>
-                <div class="text-red-600/60 text-6xl font-light">💸</div>
-              </div>
-              <div>
-                <p class="text-red-700 text-sm font-semibold uppercase tracking-wide">Total de Despesas</p>
-                <p class="text-3xl font-bold text-red-800 mt-2">R$ <span id="extratoDespesas">0,00</span></p>
-                <p class="text-red-600 text-xs mt-1">📉 Saídas financeiras</p>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Card de Saldo -->
-          <div class="group bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-blue-200/50 relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-200/30 to-purple-300/30 rounded-full -mr-16 -mt-16"></div>
-            <div class="relative z-10">
-              <div class="flex items-center justify-between mb-4">
-                <div class="bg-gradient-to-br from-blue-500 to-purple-600 p-4 rounded-2xl shadow-lg transform group-hover:scale-110 transition-transform duration-300">
-                  <span class="material-icons text-white text-2xl">account_balance_wallet</span>
-                </div>
-                <div class="text-blue-600/60 text-6xl font-light">⚖️</div>
-              </div>
-              <div>
-                <p class="text-blue-700 text-sm font-semibold uppercase tracking-wide">Saldo Final</p>
-                <p id="extratoSaldo" class="text-3xl font-bold mt-2">R$ 0,00</p>
-                <p class="text-blue-600 text-xs mt-1">💼 Patrimônio líquido</p>
-              </div>
-            </div>
-          </div>
-        </section>
+        <div>
+          <label class="block text-xs font-bold text-slate-500 uppercase mb-2 ml-1">Descrição</label>
+          <input id="descricaoTransacao" type="text" placeholder="Ex: Mercado, Freelance" 
+            class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 font-semibold text-slate-700 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500/50 transition-all">
+        </div>
 
-        <!-- Filtros -->
-        <section class="bg-gradient-to-r from-white via-blue-50/30 to-purple-50/30 rounded-3xl p-8 shadow-xl border border-blue-100/50 animate-fade-in backdrop-blur-sm">
-          <div class="flex items-center justify-between mb-6">
-            <div class="flex items-center space-x-3">
-              <div class="bg-gradient-to-r from-blue-500 to-purple-600 p-3 rounded-2xl shadow-lg">
-                <span class="material-icons text-white text-xl">filter_list</span>
-              </div>
-              <div>
-                <h3 class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-700 bg-clip-text text-transparent">
-                  🔍 Filtros Avançados
-                </h3>
-                <p class="text-gray-600 text-sm">Refine sua pesquisa</p>
-              </div>
-            </div>
-          </div>
-          
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-            <div class="space-y-2">
-              <label class="flex items-center space-x-2 text-sm font-semibold text-gray-700">
-                <span class="material-icons text-blue-500 text-sm">schedule</span>
-                <span>Período</span>
-              </label>
-              <select id="filtroPeriodo" onchange="aplicarFiltros()" 
-                class="w-full p-4 bg-white border-2 border-blue-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all duration-300 shadow-sm hover:shadow-md">
-                <option value="todos">🗓️ Todos os períodos</option>
-                <option value="hoje">📅 Hoje</option>
-                <option value="semana">📊 Esta semana</option>
-                <option value="mes">📆 Este mês</option>
-                <option value="ano">🗓️ Este ano</option>
-              </select>
-            </div>
-            
-            <div class="space-y-2">
-              <label class="flex items-center space-x-2 text-sm font-semibold text-gray-700">
-                <span class="material-icons text-purple-500 text-sm">category</span>
-                <span>Tipo</span>
-              </label>
-              <select id="filtroTipo" onchange="aplicarFiltros()" 
-                class="w-full p-4 bg-white border-2 border-purple-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-all duration-300 shadow-sm hover:shadow-md">
-                <option value="todos">🔄 Todos os tipos</option>
-                <option value="receita">💰 Receitas</option>
-                <option value="despesa">💸 Despesas</option>
-              </select>
-            </div>
-            
-            <div class="space-y-2">
-              <label class="flex items-center space-x-2 text-sm font-semibold text-gray-700">
-                <span class="material-icons text-green-500 text-sm">label</span>
-                <span>Categoria</span>
-              </label>
-              <select id="filtroCategoria" onchange="aplicarFiltros()" 
-                class="w-full p-4 bg-white border-2 border-green-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 transition-all duration-300 shadow-sm hover:shadow-md">
-                <option value="todas">📋 Todas as categorias</option>
+        <div>
+           <label class="block text-xs font-bold text-slate-500 uppercase mb-2 ml-1">Categoria</label>
+           <div class="relative">
+             <select id="categoriaTransacao" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 font-semibold text-slate-700 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500/50 appearance-none">
+                <option value="">Selecione...</option>
                 <option value="alimentacao">🍽️ Alimentação</option>
                 <option value="transporte">🚗 Transporte</option>
                 <option value="moradia">🏠 Moradia</option>
+                <option value="lazer">🎉 Lazer</option>
                 <option value="saude">⚕️ Saúde</option>
                 <option value="educacao">📚 Educação</option>
-                <option value="lazer">🎯 Lazer</option>
                 <option value="salario">💰 Salário</option>
-                <option value="freelance">💼 Freelance</option>
-                <option value="investimentos">📈 Investimentos</option>
                 <option value="outros">📦 Outros</option>
-              </select>
-            </div>
-            
-            <div class="space-y-2">
-              <label class="flex items-center space-x-2 text-sm font-semibold text-gray-700">
-                <span class="material-icons text-orange-500 text-sm">search</span>
-                <span>Buscar</span>
-              </label>
-              <div class="relative">
-                <span class="material-icons absolute left-4 top-1/2 transform -translate-y-1/2 text-orange-400">search</span>
-                <input id="filtroBusca" type="text" placeholder="Digite para buscar..." onkeyup="aplicarFiltros()"
-                  class="w-full pl-12 pr-4 py-4 bg-white border-2 border-orange-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all duration-300 shadow-sm hover:shadow-md" />
-              </div>
-            </div>
-          </div>
-          
-          <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pt-6 border-t-2 border-gradient-to-r from-blue-100 to-purple-100">
-            <div class="bg-gradient-to-r from-blue-50 to-purple-50 px-4 py-2 rounded-2xl border border-blue-200/50">
-              <p class="text-sm font-medium text-gray-700">
-                📊 Exibindo <span id="transacoesVisiveis" class="font-bold text-blue-600">0</span> de <span id="totalTransacoesExtrato" class="font-bold text-purple-600">0</span> transações
-              </p>
-            </div>
-            <button onclick="limparFiltros()" class="bg-gradient-to-r from-red-50 to-orange-50 hover:from-red-100 hover:to-orange-100 text-red-600 px-6 py-3 rounded-2xl font-semibold transition-all duration-300 border border-red-200/50 flex items-center space-x-2 shadow-sm hover:shadow-md">
-              <span class="material-icons text-sm">clear_all</span>
-              <span>Limpar filtros</span>
-            </button>
-          </div>
-        </section>
-
-        <!-- Lista de Transações -->
-        <section class="bg-gradient-to-br from-white to-gray-50/50 rounded-3xl shadow-xl border border-gray-200/50 overflow-hidden animate-fade-in backdrop-blur-sm">
-          <div class="bg-gradient-to-r from-slate-50 to-blue-50/30 p-8 border-b border-gray-200/50">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-              <div class="flex items-center space-x-4">
-                <div class="bg-gradient-to-r from-slate-500 to-blue-600 p-3 rounded-2xl shadow-lg">
-                  <span class="material-icons text-white text-xl">list_alt</span>
-                </div>
-                <div>
-                  <h3 class="text-2xl font-bold bg-gradient-to-r from-slate-600 to-blue-700 bg-clip-text text-transparent">
-                    📋 Histórico de Transações
-                  </h3>
-                  <p class="text-gray-600 text-sm">Visualização completa e detalhada</p>
-                </div>
-              </div>
-              <div class="flex items-center space-x-3">
-                <span class="text-sm text-gray-600 font-medium">Ordenar por:</span>
-                <button onclick="ordenarPor('data')" id="btnOrdenarData" class="px-4 py-2 text-sm rounded-2xl bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-                  📅 Data
-                </button>
-                <button onclick="ordenarPor('valor')" id="btnOrdenarValor" class="px-4 py-2 text-sm rounded-2xl bg-white text-gray-700 hover:bg-gradient-to-r hover:from-purple-500 hover:to-purple-600 hover:text-white font-semibold border border-gray-200 shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105">
-                  💰 Valor
-                </button>
-              </div>
-            </div>
-          </div>
-          
-          <div id="listaExtratoCompleto" class="divide-y divide-gray-100/50 max-h-[500px] overflow-y-auto custom-scrollbar">
-            <!-- Transações serão inseridas aqui dinamicamente -->
-          </div>
-        </section>
-
-        <!-- Estatísticas por Categoria -->
-        <section class="bg-gradient-to-br from-white via-orange-50/30 to-red-50/30 rounded-3xl p-8 shadow-xl border border-orange-100/50 animate-fade-in backdrop-blur-sm">
-          <div class="flex items-center space-x-4 mb-8">
-            <div class="bg-gradient-to-r from-orange-500 to-red-600 p-4 rounded-2xl shadow-lg">
-              <span class="material-icons text-white text-2xl">pie_chart</span>
-            </div>
-            <div>
-              <h3 class="text-2xl font-bold bg-gradient-to-r from-orange-600 to-red-700 bg-clip-text text-transparent">
-                📊 Análise por Categorias
-              </h3>
-              <p class="text-gray-600 text-sm">Top 5 categorias com mais gastos</p>
-            </div>
-          </div>
-          <div id="estatisticasCategorias" class="space-y-4">
-            <!-- Estatísticas serão inseridas aqui dinamicamente -->
-          </div>
-        </section>
-      </main>
-    </div>
-
-    <!-- Botão Flutuante -->
-    <button onclick="abrirModalTransacao('despesa')" 
-      class="floating-action simple-gradient text-white w-12 h-12 sm:w-14 sm:h-14 rounded-full soft-shadow flex items-center justify-center hover:scale-110 transition-all duration-300">
-      <span class="material-icons text-xl sm:text-2xl">add</span>
-    </button>
-
-    <!-- Navegação Inferior -->
-    <footer class="clean-card mx-2 sm:mx-4 mb-2 sm:mb-4 rounded-xl fixed bottom-0 left-0 right-0 z-40">
-      <div class="p-2 sm:p-3">
-      <div class="flex justify-around">
-        <button class="nav-item active flex flex-col items-center py-1 sm:py-2 px-2 sm:px-3 rounded-lg sm:rounded-xl">
-          <span class="material-icons text-lg sm:text-xl">home</span>
-          <span class="text-xs font-medium mt-0.5 sm:mt-1 hidden sm:block">Início</span>
-        </button>
-        <button onclick="abrirAnalise()" class="nav-item flex flex-col items-center py-1 sm:py-2 px-2 sm:px-3 rounded-lg sm:rounded-xl text-gray-500 hover:text-primary-500 transition-colors">
-          <span class="material-icons text-lg sm:text-xl">analytics</span>
-          <span class="text-xs font-medium mt-0.5 sm:mt-1 hidden sm:block">Análise</span>
-        </button>
-        <button onclick="abrirModalTransacao('receita')" class="nav-item flex flex-col items-center py-1 sm:py-2 px-2 sm:px-3 rounded-lg sm:rounded-xl text-gray-500 hover:text-primary-500 transition-colors">
-          <span class="material-icons text-lg sm:text-xl">add_circle</span>
-          <span class="text-xs font-medium mt-0.5 sm:mt-1 hidden sm:block">Adicionar</span>
-        </button>
-        <button onclick="abrirExtrato()" class="nav-item flex flex-col items-center py-1 sm:py-2 px-2 sm:px-3 rounded-lg sm:rounded-xl text-gray-500 hover:text-primary-500 transition-colors">
-          <span class="material-icons text-lg sm:text-xl">receipt_long</span>
-          <span class="text-xs font-medium mt-0.5 sm:mt-1 hidden sm:block">Extrato</span>
-        </button>
-        <button onclick="abrirPerfil()" class="nav-item flex flex-col items-center py-1 sm:py-2 px-2 sm:px-3 rounded-lg sm:rounded-xl text-gray-500 hover:text-primary-500 transition-colors">
-          <span class="material-icons text-lg sm:text-xl">person</span>
-          <span class="text-xs font-medium mt-0.5 sm:mt-1 hidden sm:block">Perfil</span>
-        </button>
-      </div>
-    </footer>
-  </div>
-
-  <!-- Modal de Transação -->
-  <div id="modalTransacao" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-end">
-    <div class="clean-card w-full rounded-t-2xl sm:rounded-t-3xl p-6 sm:p-8 transform translate-y-full transition-transform duration-300" id="modalContent">
-      <div class="w-8 h-1 sm:w-12 sm:h-1 bg-gray-300 rounded-full mx-auto mb-4 sm:mb-6"></div>
-      
-      <div class="text-center mb-6 sm:mb-8">
-        <h3 id="modalTitulo" class="text-xl sm:text-3xl font-bold elegant-text mb-2">Nova Transação</h3>
-        <p class="text-gray-600 text-sm sm:text-lg font-medium">Preencha os dados abaixo</p>
-      </div>
-
-      <div class="space-y-3 sm:space-y-4">
-        <div>
-          <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Valor (R$)</label>
-          <input id="valorTransacao" type="number" step="0.01" placeholder="0,00" 
-            class="w-full p-3 sm:p-4 border border-gray-200 rounded-xl sm:rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500 text-base sm:text-lg font-semibold" />
-        </div>
-        
-        <div>
-          <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Descrição</label>
-          <input id="descricaoTransacao" type="text" placeholder="Ex: Salário, Supermercado, etc." 
-            class="w-full p-3 sm:p-4 border border-gray-200 rounded-xl sm:rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm sm:text-base" />
-        </div>
-        
-        <div>
-          <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Categoria</label>
-          <select id="categoriaTransacao" 
-            class="w-full p-3 sm:p-4 border border-gray-200 rounded-xl sm:rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm sm:text-base">
-            <option value="">Selecione uma categoria</option>
-            <option value="alimentacao">🍽️ Alimentação</option>
-            <option value="transporte">🚗 Transporte</option>
-            <option value="moradia">🏠 Moradia</option>
-            <option value="saude">⚕️ Saúde</option>
-            <option value="educacao">📚 Educação</option>
-            <option value="lazer">🎯 Lazer</option>
-            <option value="salario">💰 Salário</option>
-            <option value="freelance">💼 Freelance</option>
-            <option value="investimentos">📈 Investimentos</option>
-            <option value="outros">📦 Outros</option>
-          </select>
+             </select>
+             <span class="absolute right-4 top-1/2 -translate-y-1/2 material-icons-round text-slate-400 pointer-events-none">expand_more</span>
+           </div>
         </div>
 
-        <div class="flex space-x-3 sm:space-x-4 pt-4 sm:pt-6">
-          <button onclick="fecharModal()" 
-            class="flex-1 clean-card text-gray-700 py-3 sm:py-4 font-medium text-sm sm:text-base clean-hover transition-all duration-300">
-            Cancelar
-          </button>
-          <button onclick="console.log('🔘 Botão Salvar clicado!'); salvarTransacao()" 
-            class="flex-1 simple-gradient text-white py-3 sm:py-4 rounded-xl font-medium text-sm sm:text-base hover:scale-105 transition-all duration-300 soft-shadow">
-            Salvar
-          </button>
-        </div>
+        <button onclick="salvarTransacao()" class="w-full bg-slate-900 hover:bg-black text-white font-bold py-4 rounded-xl shadow-xl active:scale-95 transition-all mt-2 text-lg">
+           Confirmar
+        </button>
       </div>
     </div>
   </div>
 
   <script>
-    let renda = 0;
-    let despesas = [];
-    let receitas = [];
-    let tipoTransacaoAtual = '';
+    let transacoes = [];
+    let tipoAtual = '';
 
-    // Teste para verificar se os botões estão funcionando
-    function testarBotoes() {
-      console.log('Testando botões...');
-      const botaoReceita = document.querySelector('button[onclick="abrirModalTransacao(\'receita\')"]');
-      const botaoDespesa = document.querySelector('button[onclick="abrirModalTransacao(\'despesa\')"]');
-      console.log('Botão receita encontrado:', botaoReceita);
-      console.log('Botão despesa encontrado:', botaoDespesa);
+    // Inicialização
+    function init() {
+       const saved = localStorage.getItem('financas_pro_db');
+       if(saved) transacoes = JSON.parse(saved);
+       // Se já estiver logado (simulação), carrega
+       if(localStorage.getItem('isLogged') === 'true') {
+          entrarNoApp();
+       }
     }
 
-    // Executar teste quando a página carregar
-    document.addEventListener('DOMContentLoaded', function() {
-      console.log('Página carregada, executando teste...');
-      setTimeout(testarBotoes, 1000);
-    });
-
     function fazerLogin() {
-      const user = document.getElementById('usuario').value;
-      const pass = document.getElementById('senha').value;
-      
-      if (user === "admin" && pass === "1234") {
-        document.getElementById('loginTela').classList.add('hidden');
-        document.getElementById('appTela').classList.remove('hidden');
-        carregarDados();
-        mostrarBoasVindas();
-      } else {
-        const erro = document.getElementById('erroLogin');
-        erro.classList.remove('hidden');
-        setTimeout(() => erro.classList.add('hidden'), 3000);
-      }
+       const u = document.getElementById('usuario').value;
+       const s = document.getElementById('senha').value;
+       if(u === 'admin' && s === '1234') {
+          localStorage.setItem('isLogged', 'true');
+          entrarNoApp();
+       } else {
+          document.getElementById('erroLogin').classList.remove('hidden');
+       }
+    }
+
+    function entrarNoApp() {
+       document.getElementById('loginTela').classList.add('hidden');
+       document.getElementById('appContent').classList.remove('hidden');
+       document.getElementById('appContent').classList.add('flex');
+       atualizarUI();
     }
 
     function logout() {
-      location.reload();
+       localStorage.removeItem('isLogged');
+       location.reload();
     }
 
-    function mostrarBoasVindas() {
-      // Pequena animação de boas-vindas
-      setTimeout(() => {
-        const sections = document.querySelectorAll('main section');
-        sections.forEach((section, index) => {
-          setTimeout(() => {
-            section.style.opacity = '0';
-            section.style.transform = 'translateY(20px)';
-            section.style.transition = 'all 0.5s ease';
-            setTimeout(() => {
-              section.style.opacity = '1';
-              section.style.transform = 'translateY(0)';
-            }, 50);
-          }, index * 100);
-        });
-      }, 100);
-    }
-
+    // Modal Logic
     function abrirModalTransacao(tipo) {
-      console.log('Abrindo modal para:', tipo);
-      tipoTransacaoAtual = tipo;
-      const modal = document.getElementById('modalTransacao');
-      const modalContent = document.getElementById('modalContent');
-      const titulo = document.getElementById('modalTitulo');
-      
-      console.log('Modal encontrado:', modal);
-      console.log('Modal content encontrado:', modalContent);
-      
-      titulo.textContent = tipo === 'receita' ? '💰 Nova Receita' : '💸 Nova Despesa';
-      
-      modal.classList.remove('hidden');
-      setTimeout(() => {
-        modalContent.style.transform = 'translateY(0)';
-      }, 10);
+       tipoAtual = tipo;
+       const modal = document.getElementById('modalTransacao');
+       const iconBg = document.getElementById('modalIconBg');
+       const icon = document.getElementById('modalIcon');
+       const titulo = document.getElementById('modalTitulo');
+
+       if(tipo === 'receita') {
+          titulo.innerText = 'Entrada';
+          iconBg.className = 'w-12 h-12 rounded-2xl flex items-center justify-center transition-colors bg-emerald-100';
+          icon.innerText = 'arrow_upward';
+          icon.className = 'material-icons-round text-emerald-600 text-2xl';
+       } else {
+          titulo.innerText = 'Saída';
+          iconBg.className = 'w-12 h-12 rounded-2xl flex items-center justify-center transition-colors bg-rose-100';
+          icon.innerText = 'arrow_downward';
+          icon.className = 'material-icons-round text-rose-600 text-2xl';
+       }
+
+       modal.classList.remove('hidden');
+       // Pequeno delay para permitir a transição CSS
+       setTimeout(() => {
+          modal.classList.add('modal-open');
+          document.getElementById('modalBackdrop').classList.remove('opacity-0');
+       }, 10);
     }
 
     function fecharModal() {
-      const modal = document.getElementById('modalTransacao');
-      const modalContent = document.getElementById('modalContent');
-      
-      modalContent.style.transform = 'translateY(100%)';
-      setTimeout(() => {
-        modal.classList.add('hidden');
-        limparFormulario();
-      }, 300);
-    }
-
-    function limparFormulario() {
-      document.getElementById('valorTransacao').value = '';
-      document.getElementById('descricaoTransacao').value = '';
-      document.getElementById('categoriaTransacao').value = '';
+       const modal = document.getElementById('modalTransacao');
+       modal.classList.remove('modal-open');
+       document.getElementById('modalBackdrop').classList.add('opacity-0');
+       
+       setTimeout(() => {
+          modal.classList.add('hidden');
+          document.getElementById('valorTransacao').value = '';
+          document.getElementById('descricaoTransacao').value = '';
+          document.getElementById('categoriaTransacao').value = '';
+       }, 300);
     }
 
     function salvarTransacao() {
-      console.log('🚀 Iniciando salvarTransacao...');
-      
-      const valor = parseFloat(document.getElementById('valorTransacao').value);
-      const descricao = document.getElementById('descricaoTransacao').value;
-      const categoria = document.getElementById('categoriaTransacao').value;
+       const val = parseFloat(document.getElementById('valorTransacao').value);
+       const desc = document.getElementById('descricaoTransacao').value;
+       const cat = document.getElementById('categoriaTransacao').value;
 
-      console.log('📊 Dados coletados:', { valor, descricao, categoria, tipoTransacaoAtual });
+       if(!val || !desc || !cat) { alert('Preencha tudo!'); return; }
 
-      if (!valor || !descricao || !categoria) {
-        console.log('❌ Campos obrigatórios não preenchidos');
-        alert('Por favor, preencha todos os campos!');
-        return;
-      }
+       transacoes.push({
+          id: Date.now(),
+          valor: val,
+          descricao: desc,
+          categoria: cat,
+          tipo: tipoAtual,
+          data: new Date().toLocaleDateString('pt-BR')
+       });
 
-      const transacao = {
-        id: Date.now(),
-        valor: valor,
-        descricao: descricao,
-        categoria: categoria,
-        tipo: tipoTransacaoAtual,
-        data: new Date().toLocaleDateString('pt-BR')
-      };
-
-      console.log('📝 Transação criada:', transacao);
-
-      if (tipoTransacaoAtual === 'receita') {
-        receitas.push(transacao);
-        console.log('✅ Receita adicionada. Total receitas:', receitas.length);
-      } else {
-        despesas.push(transacao);
-        console.log('✅ Despesa adicionada. Total despesas:', despesas.length);
-      }
-
-      console.log('💾 Salvando dados...');
-      salvarDados();
-      
-      console.log('🔄 Atualizando interface...');
-      atualizar();
-      atualizarListaTransacoes();
-      
-      console.log('❌ Fechando modal...');
-      fecharModal();
-      
-      console.log('🎉 Mostrando notificação...');
-      // Animação de sucesso
-      mostrarNotificacao(`${tipoTransacaoAtual === 'receita' ? 'Receita' : 'Despesa'} adicionada com sucesso! 🎉`);
-      
-      console.log('✅ salvarTransacao concluída!');
+       localStorage.setItem('financas_pro_db', JSON.stringify(transacoes));
+       fecharModal();
+       atualizarUI();
     }
 
-    function mostrarNotificacao(mensagem) {
-      console.log('📢 Mostrando notificação:', mensagem);
-      const notif = document.createElement('div');
-      notif.className = 'fixed top-4 left-4 right-4 bg-green-500 text-white p-4 rounded-2xl shadow-lg z-[9999] transform -translate-y-full transition-transform duration-300';
-      notif.textContent = mensagem;
-      document.body.appendChild(notif);
-      
-      setTimeout(() => notif.style.transform = 'translateY(0)', 10);
-      setTimeout(() => {
-        notif.style.transform = 'translateY(-100%)';
-        setTimeout(() => {
-          if (document.body.contains(notif)) {
-            document.body.removeChild(notif);
-          }
-        }, 300);
-      }, 3000);
+    function atualizarUI() {
+       const receitas = transacoes.filter(t => t.tipo === 'receita').reduce((a,b)=>a+b.valor,0);
+       const despesas = transacoes.filter(t => t.tipo === 'despesa').reduce((a,b)=>a+b.valor,0);
+       
+       document.getElementById('saldoTotal').innerText = (receitas - despesas).toLocaleString('pt-BR', {minimumFractionDigits: 2});
+       document.getElementById('receitasMes').innerText = receitas.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+       document.getElementById('gastosMes').innerText = despesas.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+       document.getElementById('extratoReceitas').innerText = `R$ ${receitas.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+       document.getElementById('extratoDespesas').innerText = `R$ ${despesas.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+
+       renderList('listaTransacoes', transacoes.slice().reverse().slice(0, 5)); // Apenas 5 recentes
+       renderList('listaExtratoCompleto', transacoes.slice().reverse()); // Todas
     }
 
-    // Função para excluir transação individual
-    function excluirTransacao(id, tipo) {
-      console.log('🗑️ Excluindo transação:', { id, tipo });
-      
-      // Confirmar exclusão
-      if (!confirm(`Tem certeza que deseja excluir esta ${tipo === 'receita' ? 'receita' : 'despesa'}?`)) {
-        return;
-      }
+    function renderList(elementId, list) {
+       const el = document.getElementById(elementId);
+       if(list.length === 0) {
+          el.innerHTML = `<div class="text-center py-10 opacity-50"><span class="material-icons-round text-4xl mb-2">inbox</span><p>Nada por aqui</p></div>`;
+          return;
+       }
+       
+       const icons = { 'alimentacao': 'restaurant', 'transporte': 'directions_car', 'moradia': 'home', 'lazer': 'confirmation_number', 'saude': 'favorite', 'educacao': 'school', 'salario': 'payments', 'outros': 'category' };
 
-      if (tipo === 'receita') {
-        receitas = receitas.filter(transacao => transacao.id !== id);
-        console.log('✅ Receita excluída. Total receitas:', receitas.length);
-      } else {
-        despesas = despesas.filter(transacao => transacao.id !== id);
-        console.log('✅ Despesa excluída. Total despesas:', despesas.length);
-      }
-
-      // Salvar dados e atualizar interface
-      salvarDados();
-      atualizar();
-      atualizarListaTransacoes();
-      
-      // Se estiver na tela de extrato, atualizar também
-      if (!document.getElementById('telaExtrato').classList.contains('hidden')) {
-        aplicarFiltros();
-      }
-      
-      mostrarNotificacao(`${tipo === 'receita' ? 'Receita' : 'Despesa'} excluída com sucesso! 🗑️`);
-    }
-
-    // Função para excluir todas as receitas
-    function excluirTodasReceitas() {
-      console.log('🗑️ Tentando excluir todas as receitas...');
-      
-      if (receitas.length === 0) {
-        mostrarNotificacao('Não há receitas para excluir! 📭');
-        return;
-      }
-
-      // Confirmar exclusão
-      if (!confirm(`Tem certeza que deseja excluir TODAS as ${receitas.length} receitas? Esta ação não pode ser desfeita!`)) {
-        return;
-      }
-
-      const quantidadeExcluida = receitas.length;
-      receitas = [];
-      console.log('✅ Todas as receitas foram excluídas');
-
-      // Salvar dados e atualizar interface
-      salvarDados();
-      atualizar();
-      atualizarListaTransacoes();
-      
-      // Se estiver na tela de extrato, atualizar também
-      if (!document.getElementById('telaExtrato').classList.contains('hidden')) {
-        aplicarFiltros();
-      }
-      
-      mostrarNotificacao(`${quantidadeExcluida} receitas excluídas com sucesso! 🧹`);
-    }
-
-    function atualizar() {
-      console.log('🔄 Executando atualizar()...');
-      const totalReceitas = receitas.reduce((sum, item) => sum + item.valor, 0);
-      const totalDespesas = despesas.reduce((sum, item) => sum + item.valor, 0);
-      const saldoTotal = totalReceitas - totalDespesas;
-      
-      console.log('📊 Valores calculados:', { totalReceitas, totalDespesas, saldoTotal });
-      
-      // Corrigido: usar saldoTotal em vez de saldoAtual
-      const elementoSaldo = document.getElementById('saldoTotal');
-      const elementoReceitas = document.getElementById('receitasMes');
-      const elementoGastos = document.getElementById('gastosMes');
-      const elementoTotal = document.getElementById('totalTransacoes');
-      
-      console.log('🎯 Elementos encontrados:', {
-        saldo: !!elementoSaldo,
-        receitas: !!elementoReceitas,
-        gastos: !!elementoGastos,
-        total: !!elementoTotal
-      });
-      
-      if (elementoSaldo) elementoSaldo.textContent = saldoTotal.toLocaleString('pt-BR', {minimumFractionDigits: 2});
-      if (elementoReceitas) elementoReceitas.textContent = totalReceitas.toLocaleString('pt-BR', {minimumFractionDigits: 2});
-      if (elementoGastos) elementoGastos.textContent = totalDespesas.toLocaleString('pt-BR', {minimumFractionDigits: 2});
-      if (elementoTotal) elementoTotal.textContent = (receitas.length + despesas.length);
-      
-      console.log('✅ Atualização da interface concluída!');
-    }
-
-    function atualizarListaTransacoes() {
-      console.log('📋 Executando atualizarListaTransacoes()...');
-      const lista = document.getElementById('listaTransacoes');
-      console.log('📋 Lista encontrada:', !!lista);
-      
-      const todasTransacoes = [...receitas, ...despesas]
-        .sort((a, b) => b.id - a.id)
-        .slice(0, 5);
-      
-      console.log('📋 Transações para exibir:', todasTransacoes.length);
-
-      if (todasTransacoes.length === 0) {
-        lista.innerHTML = `
-          <div class="p-12 text-center">
-            <div class="bg-gradient-to-br from-gray-100 to-gray-200 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
-              <span class="material-icons text-4xl text-gray-400">receipt_long</span>
-            </div>
-            <h4 class="text-xl font-bold text-gray-600 mb-2">Nenhuma transação registrada</h4>
-            <p class="text-gray-500 mb-6">Adicione sua primeira transação para começar a acompanhar suas finanças!</p>
-            <div class="flex flex-col sm:flex-row gap-4 justify-center">
-              <button onclick="abrirModalTransacao('receita')" class="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-2xl font-semibold hover:shadow-lg transition-all duration-300 flex items-center space-x-2">
-                <span class="material-icons">trending_up</span>
-                <span>Adicionar Receita</span>
-              </button>
-              <button onclick="abrirModalTransacao('despesa')" class="bg-gradient-to-r from-red-500 to-rose-600 text-white px-6 py-3 rounded-2xl font-semibold hover:shadow-lg transition-all duration-300 flex items-center space-x-2">
-                <span class="material-icons">trending_down</span>
-                <span>Adicionar Despesa</span>
-              </button>
-            </div>
-          </div>
-        `;
-        return;
-      }
-
-      lista.innerHTML = todasTransacoes.map(transacao => `
-        <div class="extrato-card-hover p-6 flex items-center justify-between hover:bg-gradient-to-r hover:from-blue-50/30 hover:to-purple-50/30 transition-all duration-300 group">
-          <div class="flex items-center space-x-4">
-            <div class="relative">
-              <div class="w-14 h-14 rounded-3xl flex items-center justify-center ${transacao.tipo === 'receita' ? 'bg-gradient-to-br from-green-100 to-emerald-200' : 'bg-gradient-to-br from-red-100 to-rose-200'} shadow-lg group-hover:scale-110 transition-transform duration-300">
-                <span class="material-icons ${transacao.tipo === 'receita' ? 'text-green-600' : 'text-red-600'}">
-                ${transacao.tipo === 'receita' ? 'trending_up' : 'trending_down'}
-              </span>
-            </div>
-              <div class="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r ${transacao.tipo === 'receita' ? 'from-green-400 to-emerald-500' : 'from-red-400 to-rose-500'} rounded-full flex items-center justify-center">
-                <span class="text-white text-xs">${transacao.tipo === 'receita' ? '+' : '-'}</span>
-            </div>
-          </div>
-            <div class="space-y-1">
-              <p class="font-bold text-gray-800 group-hover:text-gray-900">${transacao.descricao}</p>
-              <div class="flex items-center space-x-2">
-                <span class="text-sm">${getCategoriaEmoji(transacao.categoria)}</span>
-                <p class="text-xs text-gray-500">${getCategoriaTexto(transacao.categoria)} • ${transacao.data}</p>
-              </div>
-            </div>
-          </div>
-          <div class="flex items-center space-x-4">
-          <div class="text-right">
-              <p class="font-bold text-lg ${transacao.tipo === 'receita' ? 'text-green-600' : 'text-red-600'} group-hover:scale-105 transition-transform duration-300">
-                R$ ${transacao.valor.toLocaleString('pt-BR', {minimumFractionDigits: 2})}
-              </p>
-            </div>
-            <button onclick="excluirTransacao(${transacao.id}, '${transacao.tipo}')" 
-              class="opacity-0 group-hover:opacity-100 bg-red-500 hover:bg-red-600 text-white p-2 rounded-xl transition-all duration-300 hover:scale-110 modern-shadow"
-              title="Excluir ${transacao.tipo === 'receita' ? 'receita' : 'despesa'}">
-              <span class="material-icons text-sm">delete</span>
-            </button>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    // Variáveis globais para o extrato
-    let transacoesFiltradas = [];
-    let ordenacaoAtual = 'data';
-    let ordemDecrescente = true;
-
-    function abrirExtrato() {
-      document.getElementById('telaPrincipal').classList.add('hidden');
-      document.getElementById('telaExtrato').classList.remove('hidden');
-      carregarExtrato();
-    }
-
-    function voltarParaPrincipal() {
-      document.getElementById('telaExtrato').classList.add('hidden');
-      document.getElementById('telaPrincipal').classList.remove('hidden');
-    }
-
-    function carregarExtrato() {
-      transacoesFiltradas = [...receitas, ...despesas];
-      atualizarResumoExtrato();
-      aplicarFiltros();
-      atualizarEstatisticasCategorias();
-    }
-
-    function atualizarResumoExtrato() {
-      const totalReceitas = receitas.reduce((sum, item) => sum + item.valor, 0);
-      const totalDespesas = despesas.reduce((sum, item) => sum + item.valor, 0);
-      const saldoFinal = totalReceitas - totalDespesas;
-      
-      document.getElementById('extratoReceitas').textContent = totalReceitas.toLocaleString('pt-BR', {minimumFractionDigits: 2});
-      document.getElementById('extratoDespesas').textContent = totalDespesas.toLocaleString('pt-BR', {minimumFractionDigits: 2});
-      
-      const saldoElement = document.getElementById('extratoSaldo');
-      saldoElement.textContent = `R$ ${saldoFinal.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-      saldoElement.className = `text-2xl font-bold mt-1 ${saldoFinal >= 0 ? 'text-success' : 'text-danger'}`;
-    }
-
-    function aplicarFiltros() {
-      const filtroPeriodo = document.getElementById('filtroPeriodo').value;
-      const filtroTipo = document.getElementById('filtroTipo').value;
-      const filtroCategoria = document.getElementById('filtroCategoria').value;
-      const filtroBusca = document.getElementById('filtroBusca').value.toLowerCase();
-
-      let transacoesFiltradas = [...receitas, ...despesas];
-
-      // Filtro por período
-      if (filtroPeriodo !== 'todos') {
-        const hoje = new Date();
-        transacoesFiltradas = transacoesFiltradas.filter(transacao => {
-          const dataTransacao = new Date(transacao.data.split('/').reverse().join('-'));
-          
-          switch (filtroPeriodo) {
-            case 'hoje':
-              return dataTransacao.toDateString() === hoje.toDateString();
-            case 'semana':
-              const inicioSemana = new Date(hoje);
-              inicioSemana.setDate(hoje.getDate() - hoje.getDay());
-              return dataTransacao >= inicioSemana;
-            case 'mes':
-              return dataTransacao.getMonth() === hoje.getMonth() && 
-                     dataTransacao.getFullYear() === hoje.getFullYear();
-            case 'ano':
-              return dataTransacao.getFullYear() === hoje.getFullYear();
-            default:
-              return true;
-          }
-        });
-      }
-
-      // Filtro por tipo
-      if (filtroTipo !== 'todos') {
-        transacoesFiltradas = transacoesFiltradas.filter(transacao => transacao.tipo === filtroTipo);
-      }
-
-      // Filtro por categoria
-      if (filtroCategoria !== 'todas') {
-        transacoesFiltradas = transacoesFiltradas.filter(transacao => transacao.categoria === filtroCategoria);
-      }
-
-      // Filtro por busca
-      if (filtroBusca) {
-        transacoesFiltradas = transacoesFiltradas.filter(transacao => 
-          transacao.descricao.toLowerCase().includes(filtroBusca)
-        );
-      }
-
-      // Aplicar ordenação
-      ordenarTransacoes(transacoesFiltradas);
-      
-      // Atualizar contadores
-      document.getElementById('transacoesVisiveis').textContent = transacoesFiltradas.length;
-      document.getElementById('totalTransacoesExtrato').textContent = receitas.length + despesas.length;
-      
-      // Atualizar lista
-      atualizarListaExtratoCompleto(transacoesFiltradas);
-    }
-
-    function ordenarTransacoes(transacoes) {
-      transacoes.sort((a, b) => {
-        let valorA, valorB;
-        
-        if (ordenacaoAtual === 'data') {
-          valorA = new Date(a.data.split('/').reverse().join('-'));
-          valorB = new Date(b.data.split('/').reverse().join('-'));
-        } else if (ordenacaoAtual === 'valor') {
-          valorA = a.valor;
-          valorB = b.valor;
-        }
-        
-        if (ordemDecrescente) {
-          return valorB > valorA ? 1 : valorB < valorA ? -1 : 0;
-        } else {
-          return valorA > valorB ? 1 : valorA < valorB ? -1 : 0;
-        }
-      });
-    }
-
-    function ordenarPor(criterio) {
-      if (ordenacaoAtual === criterio) {
-        ordemDecrescente = !ordemDecrescente;
-      } else {
-        ordenacaoAtual = criterio;
-        ordemDecrescente = true;
-      }
-      
-      // Atualizar botões visuais
-      document.getElementById('btnOrdenarData').className = 
-        criterio === 'data' ? 'px-4 py-2 text-sm rounded-2xl bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105' :
-        'px-4 py-2 text-sm rounded-2xl bg-white text-gray-700 hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-600 hover:text-white font-semibold border border-gray-200 shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105';
-      
-      document.getElementById('btnOrdenarValor').className = 
-        criterio === 'valor' ? 'px-4 py-2 text-sm rounded-2xl bg-gradient-to-r from-purple-500 to-purple-600 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105' :
-        'px-4 py-2 text-sm rounded-2xl bg-white text-gray-700 hover:bg-gradient-to-r hover:from-purple-500 hover:to-purple-600 hover:text-white font-semibold border border-gray-200 shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105';
-      
-      aplicarFiltros();
-    }
-
-    function atualizarListaExtratoCompleto(transacoes) {
-      const lista = document.getElementById('listaExtratoCompleto');
-      
-      if (transacoes.length === 0) {
-        lista.innerHTML = `
-          <div class="p-12 text-center">
-            <div class="bg-gradient-to-br from-gray-100 to-gray-200 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
-              <span class="material-icons text-4xl text-gray-400">search_off</span>
-            </div>
-            <h4 class="text-xl font-bold text-gray-600 mb-2">Nenhuma transação encontrada</h4>
-            <p class="text-gray-500 mb-4">Tente ajustar os filtros ou adicionar novas transações</p>
-            <button onclick="limparFiltros()" class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-2xl font-semibold hover:shadow-lg transition-all duration-300">
-              🔄 Limpar Filtros
-            </button>
-          </div>
-        `;
-        return;
-      }
-
-      lista.innerHTML = transacoes.map(transacao => `
-        <div class="extrato-card-hover p-6 flex items-center justify-between hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-purple-50/50 transition-all duration-300 group">
-          <div class="flex items-center space-x-6">
-            <div class="relative">
-              <div class="w-16 h-16 rounded-3xl flex items-center justify-center ${transacao.tipo === 'receita' ? 'bg-gradient-to-br from-green-100 to-emerald-200' : 'bg-gradient-to-br from-red-100 to-rose-200'} shadow-lg group-hover:scale-110 transition-transform duration-300">
-                <span class="material-icons text-xl ${transacao.tipo === 'receita' ? 'text-green-600' : 'text-red-600'}">
-                  ${transacao.tipo === 'receita' ? 'trending_up' : 'trending_down'}
-                </span>
-              </div>
-              <div class="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-r ${transacao.tipo === 'receita' ? 'from-green-400 to-emerald-500' : 'from-red-400 to-rose-500'} rounded-full flex items-center justify-center">
-                <span class="text-white text-xs">${transacao.tipo === 'receita' ? '+' : '-'}</span>
-              </div>
-            </div>
-            <div class="space-y-1">
-              <p class="font-bold text-lg text-gray-800 group-hover:text-gray-900">${transacao.descricao}</p>
-              <div class="flex items-center space-x-2">
-                <span class="text-lg">${getCategoriaEmoji(transacao.categoria)}</span>
-                <p class="text-sm font-medium text-gray-600">${getCategoriaTexto(transacao.categoria)}</p>
-              </div>
-              <p class="text-xs text-gray-500 flex items-center space-x-1">
-                <span class="material-icons text-xs">schedule</span>
-                <span>${transacao.data}</span>
-              </p>
-            </div>
-          </div>
-          <div class="text-right space-y-2">
-            <p class="font-bold text-2xl ${transacao.tipo === 'receita' ? 'text-green-600' : 'text-red-600'} group-hover:scale-105 transition-transform duration-300">
-              R$ ${transacao.valor.toLocaleString('pt-BR', {minimumFractionDigits: 2})}
-            </p>
-            <button onclick="excluirTransacao(${transacao.id}, '${transacao.tipo}')" class="bg-red-50 hover:bg-red-100 text-red-500 hover:text-red-600 p-3 rounded-xl transition-all duration-300 opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0 hover:scale-110"
-              title="Excluir ${transacao.tipo === 'receita' ? 'receita' : 'despesa'}">
-              <span class="material-icons text-lg">delete_outline</span>
-            </button>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function getCategoriaEmoji(categoria) {
-      const emojis = {
-        'alimentacao': '🍽️',
-        'transporte': '🚗',
-        'moradia': '🏠',
-        'saude': '⚕️',
-        'educacao': '📚',
-        'lazer': '🎯',
-        'salario': '💰',
-        'freelance': '💼',
-        'investimentos': '📈',
-        'outros': '📦'
-      };
-      return emojis[categoria] || '📦';
-    }
-
-    function getCategoriaTexto(categoria) {
-      const textos = {
-        'alimentacao': 'Alimentação',
-        'transporte': 'Transporte',
-        'moradia': 'Moradia',
-        'saude': 'Saúde',
-        'educacao': 'Educação',
-        'lazer': 'Lazer',
-        'salario': 'Salário',
-        'freelance': 'Freelance',
-        'investimentos': 'Investimentos',
-        'outros': 'Outros'
-      };
-      return textos[categoria] || 'Outros';
-    }
-
-    function limparFiltros() {
-      document.getElementById('filtroPeriodo').value = 'todos';
-      document.getElementById('filtroTipo').value = 'todos';
-      document.getElementById('filtroCategoria').value = 'todas';
-      document.getElementById('filtroBusca').value = '';
-      aplicarFiltros();
-    }
-
-    function atualizarEstatisticasCategorias() {
-      const estatisticas = {};
-      
-      // Calcular gastos por categoria
-      despesas.forEach(despesa => {
-        if (!estatisticas[despesa.categoria]) {
-          estatisticas[despesa.categoria] = 0;
-        }
-        estatisticas[despesa.categoria] += despesa.valor;
-      });
-
-      const totalDespesas = Object.values(estatisticas).reduce((sum, valor) => sum + valor, 0);
-      const container = document.getElementById('estatisticasCategorias');
-
-      if (totalDespesas === 0) {
-        container.innerHTML = `
-          <div class="text-center py-8">
-            <div class="bg-gradient-to-br from-orange-100 to-red-200 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span class="material-icons text-3xl text-orange-600">pie_chart</span>
-            </div>
-            <h4 class="text-lg font-bold text-gray-600 mb-2">Nenhuma despesa registrada</h4>
-            <p class="text-gray-500">Adicione algumas despesas para ver as estatísticas</p>
-          </div>
-        `;
-        return;
-      }
-
-      const categorias = Object.entries(estatisticas)
-        .sort(([,a], [,b]) => b - a)
-        .slice(0, 5);
-
-      const cores = [
-        'from-red-400 to-rose-600',
-        'from-orange-400 to-amber-600', 
-        'from-yellow-400 to-orange-600',
-        'from-green-400 to-emerald-600',
-        'from-blue-400 to-indigo-600'
-      ];
-
-      container.innerHTML = categorias.map(([categoria, valor], index) => {
-        const porcentagem = (valor / totalDespesas * 100).toFixed(1);
-        return `
-          <div class="extrato-card-hover bg-gradient-to-r from-white to-gray-50/50 p-6 rounded-3xl shadow-lg border border-gray-200/50">
-            <div class="flex items-center justify-between mb-4">
-              <div class="flex items-center space-x-4">
-                <div class="bg-gradient-to-br ${cores[index]} p-3 rounded-2xl shadow-md">
-                  <span class="text-2xl">${getCategoriaEmoji(categoria)}</span>
+       el.innerHTML = list.map(t => {
+          const isRec = t.tipo === 'receita';
+          return `
+          <div class="flex items-center justify-between p-4 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all group">
+             <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-full ${isRec ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'} flex items-center justify-center shrink-0">
+                   <span class="material-icons-round text-xl">${icons[t.categoria] || 'circle'}</span>
                 </div>
                 <div>
-                  <p class="font-bold text-lg text-gray-800">${getCategoriaTexto(categoria)}</p>
-                  <p class="text-sm text-gray-600">${porcentagem}% dos gastos totais</p>
+                   <p class="font-bold text-slate-800">${t.descricao}</p>
+                   <p class="text-xs text-slate-400 font-medium uppercase tracking-wide">${t.categoria} • ${t.data}</p>
                 </div>
-              </div>
-              <div class="text-right">
-                <p class="font-bold text-xl text-red-600">R$ ${valor.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</p>
-                <p class="text-xs text-gray-500">#${index + 1} categoria</p>
-              </div>
-            </div>
-            
-            <div class="space-y-2">
-              <div class="flex justify-between text-xs text-gray-600">
-                <span>Progresso</span>
-                <span>${porcentagem}%</span>
-              </div>
-              <div class="progress-bar h-3">
-                <div class="progress-fill bg-gradient-to-r ${cores[index]}" style="width: ${porcentagem}%"></div>
-              </div>
-            </div>
-          </div>
-        `;
-      }).join('');
+             </div>
+             <div class="text-right">
+                <p class="font-bold ${isRec ? 'text-emerald-600' : 'text-slate-900'}">${isRec ? '+' : '-'} R$ ${t.valor.toLocaleString('pt-BR', {minimumFractionDigits:2})}</p>
+                <button onclick="deletar(${t.id})" class="text-xs text-red-400 opacity-0 group-hover:opacity-100 hover:text-red-600 transition-opacity">Excluir</button>
+             </div>
+          </div>`
+       }).join('');
     }
 
-    function excluirTransacao(id, tipo) {
-      if (!confirm('Tem certeza que deseja excluir esta transação?')) {
-        return;
-      }
-
-      if (tipo === 'receita') {
-        receitas = receitas.filter(r => r.id != id);
-      } else {
-        despesas = despesas.filter(d => d.id != id);
-      }
-
-      salvarDados();
-      atualizar();
-      atualizarListaTransacoes();
-      carregarExtrato();
-      mostrarNotificacao('Transação excluída com sucesso! ✅');
+    function deletar(id) {
+       if(confirm('Apagar?')) {
+          transacoes = transacoes.filter(t => t.id !== id);
+          localStorage.setItem('financas_pro_db', JSON.stringify(transacoes));
+          atualizarUI();
+       }
     }
 
-    function exportarExtrato() {
-      const todasTransacoes = [...receitas, ...despesas].sort((a, b) => {
-        const dataA = new Date(a.data.split('/').reverse().join('-'));
-        const dataB = new Date(b.data.split('/').reverse().join('-'));
-        return dataB - dataA;
-      });
-
-      let csv = 'Data,Tipo,Categoria,Descrição,Valor\\n';
-      todasTransacoes.forEach(transacao => {
-        csv += `${transacao.data},${transacao.tipo},${getCategoriaTexto(transacao.categoria)},${transacao.descricao},${transacao.valor.toFixed(2)}\\n`;
-      });
-
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `extrato_${new Date().toISOString().split('T')[0]}.csv`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-      
-      mostrarNotificacao('Extrato exportado com sucesso! 📥');
+    function abrirExtrato() {
+       document.getElementById('telaPrincipal').classList.add('hidden');
+       document.getElementById('telaExtrato').classList.remove('hidden');
+    }
+    
+    function voltarParaPrincipal() {
+       document.getElementById('telaExtrato').classList.add('hidden');
+       document.getElementById('telaPrincipal').classList.remove('hidden');
     }
 
-    function abrirAnalise() {
-      mostrarNotificacao('Análises detalhadas em breve! 📊');
+    function filtrarExtrato(tipo) {
+       // Atualiza botões
+       document.querySelectorAll('.filter-btn').forEach(b => {
+          b.className = 'filter-btn px-6 py-2 rounded-full text-sm font-bold bg-slate-100 text-slate-500 hover:bg-slate-200 transition-all';
+       });
+       event.target.className = 'filter-btn px-6 py-2 rounded-full text-sm font-bold bg-brand-600 text-white shadow-md transition-all';
+
+       const lista = tipo === 'todos' ? transacoes : transacoes.filter(t => t.tipo === tipo);
+       renderList('listaExtratoCompleto', lista.slice().reverse());
     }
 
-    function abrirMetas() {
-      mostrarNotificacao('Definição de metas em desenvolvimento! 🎯');
-    }
-
-    function abrirPerfil() {
-      mostrarNotificacao('Configurações de perfil em breve! ⚙️');
-    }
-
-    function salvarDados() {
-      localStorage.setItem('receitas', JSON.stringify(receitas));
-      localStorage.setItem('despesas', JSON.stringify(despesas));
-    }
-
-    function carregarDados() {
-      receitas = JSON.parse(localStorage.getItem('receitas')) || [];
-      despesas = JSON.parse(localStorage.getItem('despesas')) || [];
-      atualizar();
-      atualizarListaTransacoes();
-    }
-
-    // Fechar modal ao clicar fora
-    document.getElementById('modalTransacao').addEventListener('click', function(e) {
-      if (e.target === this) {
-        fecharModal();
-      }
-    });
-
-    // Suporte para Enter no login
-    document.addEventListener('keypress', function(e) {
-      if (e.key === 'Enter' && !document.getElementById('loginTela').classList.contains('hidden')) {
-        fazerLogin();
-      }
-    });
+    init();
   </script>
 </body>
 </html>
