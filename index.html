@@ -3,12 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>MinhasEconomias - Mobile Fix</title>
+  <title>MinhasEconomias - OCR Avançado</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
-  
   <script src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'></script>
-  
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
 
@@ -17,9 +15,7 @@
       theme: {
         extend: {
           fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
-          colors: {
-            brand: { 50: '#eef2ff', 100: '#e0e7ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 900: '#312e81' }
-          },
+          colors: { brand: { 50: '#eef2ff', 100: '#e0e7ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 900: '#312e81' } },
           animation: { 'fade-in': 'fadeIn 0.5s ease-out forwards' },
           keyframes: { fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } } }
         }
@@ -31,19 +27,10 @@
     body { -webkit-tap-highlight-color: transparent; background-color: #f8fafc; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
-
-    .modal-content {
-      position: absolute; bottom: 0; left: 0; right: 0;
-      border-top-left-radius: 2rem; border-top-right-radius: 2rem;
-      transform: translateY(100%); width: 100%; max-height: 90vh; overflow-y: auto;
-    }
+    .modal-content { position: absolute; bottom: 0; left: 0; right: 0; border-radius: 2rem 2rem 0 0; transform: translateY(100%); width: 100%; max-height: 90vh; overflow-y: auto; }
     .modal-open .modal-content { transform: translateY(0); }
-
     @media (min-width: 768px) {
-      .modal-content {
-        position: relative; bottom: auto; transform: scale(0.95); opacity: 0;
-        width: 100%; max-width: 450px; margin: auto; border-radius: 1.5rem; overflow-y: visible;
-      }
+      .modal-content { position: relative; bottom: auto; transform: scale(0.95); opacity: 0; width: 100%; max-width: 450px; margin: auto; border-radius: 1.5rem; overflow-y: visible; }
       .modal-container { display: flex; align-items: center; justify-content: center; }
       .modal-open .modal-content { transform: scale(1); opacity: 1; }
     }
@@ -53,9 +40,9 @@
 
   <div id="ocrLoading" class="fixed inset-0 z-[200] bg-slate-900/95 backdrop-blur-md hidden flex-col items-center justify-center text-white text-center p-6">
      <div class="w-16 h-16 border-4 border-brand-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-     <h3 class="text-xl font-bold animate-pulse">Processando Imagem...</h3>
-     <p class="text-sm text-slate-400 mt-2" id="ocrStatus">Iniciando motor OCR...</p>
-     <p class="text-xs text-slate-500 mt-8 max-w-xs border border-slate-700 p-2 rounded-lg">Dica: Se demorar muito, tente cortar a foto apenas na área do valor.</p>
+     <h3 class="text-xl font-bold animate-pulse">Analisando Cupom...</h3>
+     <p class="text-sm text-slate-400 mt-2" id="ocrStatus">Otimizando imagem...</p>
+     <canvas id="ocrCanvas" class="hidden"></canvas>
   </div>
 
   <div id="loginTela" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-50">
@@ -68,31 +55,28 @@
         <p class="text-slate-500 text-sm mt-2">Entre com <b>admin</b> / <b>1234</b></p>
       </div>
       <div class="space-y-4">
-        <input id="usuario" type="text" value="admin" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 px-4 focus:ring-2 focus:ring-brand-500 outline-none font-medium transition-all" placeholder="Usuário">
-        <input id="senha" type="password" value="1234" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 px-4 focus:ring-2 focus:ring-brand-500 outline-none font-medium transition-all" placeholder="Senha">
+        <input id="usuario" type="text" value="admin" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 px-4 outline-none font-medium transition-all focus:ring-2 focus:ring-brand-500" placeholder="Usuário">
+        <input id="senha" type="password" value="1234" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 px-4 outline-none font-medium transition-all focus:ring-2 focus:ring-brand-500" placeholder="Senha">
         <button onclick="fazerLogin()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-4 rounded-xl shadow-lg transition-transform active:scale-95 text-lg">Entrar</button>
-        <p id="erroLogin" class="text-red-500 text-sm text-center hidden bg-red-50 py-2 rounded-lg font-medium">Dados incorretos.</p>
       </div>
     </div>
   </div>
 
   <aside id="sidebar" class="hidden md:flex flex-col w-72 bg-white border-r border-slate-200 h-full z-50">
-    <div class="p-8">
-       <div class="flex items-center gap-3 text-brand-700">
-          <span class="material-icons-round text-3xl">account_balance_wallet</span>
-          <h1 class="font-bold text-xl tracking-tight">MinhasEcon.</h1>
-       </div>
+    <div class="p-8 flex items-center gap-3 text-brand-700">
+       <span class="material-icons-round text-3xl">account_balance_wallet</span>
+       <h1 class="font-bold text-xl tracking-tight">MinhasEcon.</h1>
     </div>
     <nav class="flex-1 px-4 space-y-2">
-       <button onclick="voltarParaPrincipal()" class="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl bg-brand-50 text-brand-700 font-bold transition-all">
+       <button onclick="voltarParaPrincipal()" class="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl bg-brand-50 text-brand-700 font-bold">
           <span class="material-icons-round">dashboard</span> Dashboard
        </button>
-       <button onclick="abrirExtrato()" class="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 font-medium transition-all">
+       <button onclick="abrirExtrato()" class="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-slate-500 hover:bg-slate-50 font-medium">
           <span class="material-icons-round">receipt_long</span> Extrato
        </button>
     </nav>
     <div class="p-4 border-t border-slate-100">
-       <button onclick="logout()" class="w-full flex items-center gap-2 text-slate-400 hover:text-red-500 px-4 py-2 text-sm font-medium transition-colors">
+       <button onclick="logout()" class="w-full flex items-center gap-2 text-slate-400 hover:text-red-500 px-4 py-2 text-sm font-medium">
           <span class="material-icons-round">logout</span> Sair
        </button>
     </div>
@@ -108,8 +92,8 @@
         </div>
       </div>
       <div class="hidden md:flex gap-3">
-         <button onclick="abrirModalTransacao('receita')" class="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold shadow-sm transition-all hover:-translate-y-0.5">Nova Receita</button>
-         <button onclick="abrirModalTransacao('despesa')" class="flex items-center gap-2 bg-rose-500 hover:bg-rose-600 text-white px-5 py-2.5 rounded-xl font-bold shadow-sm transition-all hover:-translate-y-0.5">Nova Despesa</button>
+         <button onclick="abrirModalTransacao('receita')" class="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold shadow-sm hover:-translate-y-0.5 transition-all">Nova Receita</button>
+         <button onclick="abrirModalTransacao('despesa')" class="flex items-center gap-2 bg-rose-500 hover:bg-rose-600 text-white px-5 py-2.5 rounded-xl font-bold shadow-sm hover:-translate-y-0.5 transition-all">Nova Despesa</button>
       </div>
       <button onclick="logout()" class="md:hidden w-10 h-10 flex items-center justify-center text-slate-400 active:bg-slate-100 rounded-full">
          <span class="material-icons-round">logout</span>
@@ -125,9 +109,7 @@
                 <div class="absolute -left-16 bottom-0 w-48 h-48 bg-purple-500 opacity-20 rounded-full blur-3xl pointer-events-none"></div>
                 <div class="relative z-20 mb-4">
                   <p class="text-indigo-100 text-sm font-semibold mb-1 uppercase tracking-wide opacity-90">Saldo Total</p>
-                  <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight break-words leading-tight">
-                    R$ <span id="saldoTotal">0,00</span>
-                  </h1>
+                  <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight break-words leading-tight">R$ <span id="saldoTotal">0,00</span></h1>
                 </div>
                 <div class="relative z-20 grid grid-cols-2 gap-4">
                    <div class="bg-black/20 p-3 md:p-4 rounded-2xl backdrop-blur-md border border-white/10 flex flex-col justify-center">
@@ -235,7 +217,7 @@
                 <input id="valorTransacao" type="number" step="0.01" inputmode="decimal" placeholder="0,00" 
                  class="w-full bg-slate-50 border border-slate-200 rounded-2xl py-5 pl-12 pr-4 text-3xl font-bold text-slate-800 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500/50 transition-all placeholder:text-slate-300">
              </div>
-             <button onclick="ativarCamera()" class="w-16 h-auto bg-slate-100 rounded-2xl border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-brand-50 hover:text-brand-600 hover:border-brand-200 transition-all active:scale-95">
+             <button onclick="ativarCamera()" class="w-16 h-auto bg-slate-100 rounded-2xl border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-brand-50 hover:text-brand-600 hover:border-brand-200 transition-all active:scale-95 shadow-sm">
                 <span class="material-icons-round text-3xl">photo_camera</span>
              </button>
              <input type="file" id="inputCamera" accept="image/*" class="hidden" onchange="processarImagem(this)">
@@ -277,7 +259,7 @@
     window.addEventListener('DOMContentLoaded', () => { init(); });
 
     function init() {
-       const saved = localStorage.getItem('financas_db_v8');
+       const saved = localStorage.getItem('financas_db_v9');
        if(saved) transacoes = JSON.parse(saved);
        if(localStorage.getItem('isLogged') === 'true') entrarNoApp();
     }
@@ -285,22 +267,15 @@
     function fazerLogin() {
        const u = document.getElementById('usuario').value;
        const s = document.getElementById('senha').value;
-       if(u === 'admin' && s === '1234') {
-          localStorage.setItem('isLogged', 'true');
-          entrarNoApp();
-       } else {
-          document.getElementById('erroLogin').classList.remove('hidden');
-       }
+       if(u === 'admin' && s === '1234') { localStorage.setItem('isLogged', 'true'); entrarNoApp(); } 
+       else { document.getElementById('erroLogin').classList.remove('hidden'); }
     }
 
     function entrarNoApp() {
        document.getElementById('loginTela').classList.add('hidden');
        document.getElementById('appContent').classList.remove('hidden');
        document.getElementById('appContent').classList.add('flex');
-       if(window.innerWidth >= 768) {
-          document.getElementById('sidebar').classList.remove('hidden');
-          document.getElementById('sidebar').classList.add('flex');
-       }
+       if(window.innerWidth >= 768) { document.getElementById('sidebar').classList.remove('hidden'); document.getElementById('sidebar').classList.add('flex'); }
        atualizarUI();
     }
 
@@ -325,10 +300,7 @@
           icon.className = 'material-icons-round text-rose-600 text-3xl';
        }
        modal.classList.remove('hidden');
-       setTimeout(() => {
-          modal.classList.add('modal-open');
-          document.getElementById('modalBackdrop').classList.remove('opacity-0');
-       }, 10);
+       setTimeout(() => { modal.classList.add('modal-open'); document.getElementById('modalBackdrop').classList.remove('opacity-0'); }, 10);
     }
 
     function fecharModal() {
@@ -347,11 +319,9 @@
        const val = parseFloat(document.getElementById('valorTransacao').value);
        const desc = document.getElementById('descricaoTransacao').value;
        const cat = document.getElementById('categoriaTransacao').value;
-
        if(!val || !desc || !cat) { alert('Preencha todos os campos!'); return; }
-
        transacoes.push({ id: Date.now(), valor: val, descricao: desc, categoria: cat, tipo: tipoAtual, data: new Date().toLocaleDateString('pt-BR') });
-       localStorage.setItem('financas_db_v8', JSON.stringify(transacoes));
+       localStorage.setItem('financas_db_v9', JSON.stringify(transacoes));
        fecharModal();
        atualizarUI();
     }
@@ -359,156 +329,135 @@
     function atualizarUI() {
        const receitas = transacoes.filter(t => t.tipo === 'receita').reduce((a,b)=>a+b.valor,0);
        const despesas = transacoes.filter(t => t.tipo === 'despesa').reduce((a,b)=>a+b.valor,0);
-       
        document.getElementById('saldoTotal').innerText = (receitas - despesas).toLocaleString('pt-BR', {minimumFractionDigits: 2});
        document.getElementById('receitasMes').innerText = receitas.toLocaleString('pt-BR', {minimumFractionDigits: 2});
        document.getElementById('gastosMes').innerText = despesas.toLocaleString('pt-BR', {minimumFractionDigits: 2});
-       
        renderList('listaTransacoes', transacoes.slice().reverse().slice(0, 10)); 
        renderList('listaExtratoCompleto', transacoes.slice().reverse());
     }
 
     function renderList(elementId, list) {
        const el = document.getElementById(elementId);
-       if(list.length === 0) {
-          el.innerHTML = `<div class="text-center py-10 opacity-50"><span class="material-icons-round text-5xl mb-2 text-slate-300">inbox</span><p class="text-slate-400 font-medium">Nenhuma movimentação</p></div>`;
-          return;
-       }
+       if(list.length === 0) { el.innerHTML = `<div class="text-center py-10 opacity-50"><span class="material-icons-round text-5xl mb-2 text-slate-300">inbox</span><p class="text-slate-400 font-medium">Nenhuma movimentação</p></div>`; return; }
        const icons = { 'alimentacao': 'restaurant', 'transporte': 'directions_car', 'moradia': 'home', 'lazer': 'confirmation_number', 'saude': 'favorite', 'educacao': 'school', 'salario': 'payments', 'outros': 'category' };
        el.innerHTML = list.map(t => {
           const isRec = t.tipo === 'receita';
-          return `
-          <div class="flex items-center justify-between p-4 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all group">
-             <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-2xl ${isRec ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-rose-50 text-rose-600 border border-rose-100'} flex items-center justify-center shrink-0"><span class="material-icons-round text-xl">${icons[t.categoria] || 'circle'}</span></div>
-                <div><p class="font-bold text-slate-800 text-sm md:text-base">${t.descricao}</p><p class="text-[10px] md:text-xs text-slate-400 font-bold uppercase tracking-wider">${t.categoria} • ${t.data}</p></div>
-             </div>
-             <div class="text-right">
-                <p class="font-bold text-sm md:text-base ${isRec ? 'text-emerald-600' : 'text-slate-900'}">${isRec ? '+' : '-'} R$ ${t.valor.toLocaleString('pt-BR', {minimumFractionDigits:2})}</p>
-                <button onclick="deletar(${t.id})" class="text-[10px] font-bold uppercase text-red-300 hover:text-red-500 transition-colors pt-1">Apagar</button>
-             </div>
-          </div>`
+          return `<div class="flex items-center justify-between p-4 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all group">
+             <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl ${isRec ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-rose-50 text-rose-600 border border-rose-100'} flex items-center justify-center shrink-0"><span class="material-icons-round text-xl">${icons[t.categoria] || 'circle'}</span></div>
+             <div><p class="font-bold text-slate-800 text-sm md:text-base">${t.descricao}</p><p class="text-[10px] md:text-xs text-slate-400 font-bold uppercase tracking-wider">${t.categoria} • ${t.data}</p></div></div>
+             <div class="text-right"><p class="font-bold text-sm md:text-base ${isRec ? 'text-emerald-600' : 'text-slate-900'}">${isRec ? '+' : '-'} R$ ${t.valor.toLocaleString('pt-BR', {minimumFractionDigits:2})}</p><button onclick="deletar(${t.id})" class="text-[10px] font-bold uppercase text-red-300 hover:text-red-500 transition-colors pt-1">Apagar</button></div></div>`
        }).join('');
     }
 
-    function deletar(id) {
-       if(confirm('Tem certeza?')) {
-          transacoes = transacoes.filter(t => t.id !== id);
-          localStorage.setItem('financas_db_v8', JSON.stringify(transacoes));
-          atualizarUI();
-       }
-    }
-
+    function deletar(id) { if(confirm('Tem certeza?')) { transacoes = transacoes.filter(t => t.id !== id); localStorage.setItem('financas_db_v9', JSON.stringify(transacoes)); atualizarUI(); } }
     function abrirExtrato() { document.getElementById('telaPrincipal').classList.add('hidden'); document.getElementById('telaExtrato').classList.remove('hidden'); }
     function voltarParaPrincipal() { document.getElementById('telaExtrato').classList.add('hidden'); document.getElementById('telaPrincipal').classList.remove('hidden'); }
-
     function filtrarExtrato(tipo) {
        document.querySelectorAll('.filter-btn').forEach(b => { b.className = 'filter-btn px-5 py-2.5 rounded-full text-sm font-bold bg-slate-100 text-slate-500 hover:bg-slate-200 transition-all shrink-0'; });
        event.target.className = 'filter-btn px-5 py-2.5 rounded-full text-sm font-bold bg-brand-600 text-white shadow-lg shadow-brand-500/30 transition-all shrink-0';
-       const lista = tipo === 'todos' ? transacoes : transacoes.filter(t => t.tipo === tipo);
-       renderList('listaExtratoCompleto', lista.slice().reverse());
+       renderList('listaExtratoCompleto', (tipo === 'todos' ? transacoes : transacoes.filter(t => t.tipo === tipo)).slice().reverse());
     }
 
-    /* === OCR OTIMIZADO PARA CELULAR E COMPRESSÃO === */
+    /* === OCR OTIMIZADO V2 === */
     function ativarCamera() { document.getElementById('inputCamera').click(); }
 
     async function processarImagem(input) {
        if (input.files && input.files[0]) {
           const loading = document.getElementById('ocrLoading');
           const status = document.getElementById('ocrStatus');
-          loading.classList.remove('hidden');
-          loading.classList.add('flex');
+          loading.classList.remove('hidden'); loading.classList.add('flex');
           
           try {
-             status.innerText = "Preparando imagem...";
+             status.innerText = "Otimizando imagem...";
              const file = input.files[0];
-             
-             // Compressão manual básica com Canvas (Para não travar iPhone)
              const imageBitmap = await createImageBitmap(file);
-             const canvas = document.createElement('canvas');
+             const canvas = document.getElementById('ocrCanvas');
              const ctx = canvas.getContext('2d');
              
-             // Redimensiona se for muito grande (max 1024px)
-             let width = imageBitmap.width;
-             let height = imageBitmap.height;
-             const maxSize = 1024;
-             if (width > height) {
-                if (width > maxSize) { height *= maxSize / width; width = maxSize; }
-             } else {
-                if (height > maxSize) { width *= maxSize / height; height = maxSize; }
-             }
-             canvas.width = width;
-             canvas.height = height;
-             ctx.drawImage(imageBitmap, 0, 0, width, height);
-             const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
-
-             status.innerText = "Processando texto...";
-             const worker = await Tesseract.createWorker();
-             await worker.loadLanguage('por');
-             await worker.initialize('por');
+             // Redimensiona (Max 1200px)
+             let width = imageBitmap.width; let height = imageBitmap.height;
+             const maxSize = 1200;
+             if (width > height && width > maxSize) { height *= maxSize / width; width = maxSize; }
+             else if (height > maxSize) { width *= maxSize / height; height = maxSize; }
+             canvas.width = width; canvas.height = height;
              
-             const { data: { text } } = await worker.recognize(compressedDataUrl);
+             // FILTRO DE IMAGEM: Contraste Alto + Escala de Cinza
+             ctx.filter = 'grayscale(1) contrast(1.5)';
+             ctx.drawImage(imageBitmap, 0, 0, width, height);
+             
+             const processedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+
+             status.innerText = "Lendo texto...";
+             const worker = await Tesseract.createWorker();
+             await worker.loadLanguage('por'); await worker.initialize('por');
+             const { data: { text } } = await worker.recognize(processedDataUrl);
              await worker.terminate();
 
-             console.log("OCR Result:", text);
+             console.log("OCR RAW:", text);
              extrairValor(text);
           } catch (err) {
-             console.error(err);
-             alert("Erro ao processar imagem. Verifique se o site tem HTTPS (Cadeado) ou tente uma foto menor.");
+             console.error(err); alert("Erro ao processar imagem.");
           } finally {
-             loading.classList.add('hidden');
-             loading.classList.remove('flex');
+             loading.classList.add('hidden'); loading.classList.remove('flex');
           }
        }
     }
 
     function extrairValor(texto) {
+      // Normaliza quebras de linha e espaços
       const linhas = texto.split('\n').map(l => l.trim().toUpperCase()).filter(l => l.length > 0);
-      const regexMoeda = /(?:R\$ ?)?(\d{1,3}(?:\.\d{3})*,\d{2})/g;
       
-      const keywords = ['VALOR A PAGAR', 'TOTAL A PAGAR', 'TOTAL LIQUIDO', 'VALOR TOTAL', 'TOTAL'];
+      // Regex que aceita espaços no meio (7 66,12 -> 766,12)
+      // Procura: Dígitos, espaços opcionais, pontos opcionais, vírgula obrigatória, 2 dígitos
+      const regexSmart = /([\d\s\.]+,\d{2})/g; 
+      
+      const keywordsPrioridade = ['A PAGAR', 'VALOR PAGO', 'TOTAL LIQUIDO', 'VALOR TOTAL'];
       let valorEncontrado = 0;
 
-      // 1. Prioridade: Busca na linha que tem a palavra chave
-      for (let key of keywords) {
-         if (valorEncontrado > 0) break;
-         for (let linha of linhas) {
-            // Ignora linhas de desconto/troco na busca principal
-            if (linha.includes('DESCONTO') || linha.includes('TROCO')) continue;
+      // 1. Prioridade Máxima (Evita Descontos e Troco)
+      for (let linha of linhas) {
+         if (linha.includes('DESCONTO') || linha.includes('TROCO') || linha.includes('ITENS')) continue;
 
+         for (let key of keywordsPrioridade) {
             if (linha.includes(key)) {
-               const matches = [...linha.matchAll(regexMoeda)];
-               if (matches.length > 0) {
-                  const valorStr = matches[matches.length - 1][1]; 
-                  valorEncontrado = parseMoney(valorStr);
-                  break;
+               const matches = linha.match(regexSmart);
+               if (matches) {
+                  // Pega o último valor da linha e limpa espaços
+                  let valorLimpo = matches[matches.length-1].replace(/\s/g, '').replace(/\./g, '').replace(',', '.');
+                  let v = parseFloat(valorLimpo);
+                  if (!isNaN(v) && v > 0) { valorEncontrado = v; break; }
                }
             }
          }
+         if (valorEncontrado > 0) break;
       }
 
-      // 2. Fallback: Procura qualquer valor monetário no texto todo (mas filtra ruído)
+      // 2. Fallback: Se não achou "A PAGAR", procura o maior valor numérico no texto inteiro
       if (valorEncontrado === 0) {
-         const allMatches = [...texto.matchAll(regexMoeda)];
+         const allMatches = texto.match(regexSmart);
          let maior = 0;
-         allMatches.forEach(m => {
-             let v = parseMoney(m[1]);
-             if (v > maior && v < 50000) maior = v; // Filtra valores absurdos
-         });
-         if (maior > 0) valorEncontrado = maior;
+         if (allMatches) {
+            allMatches.forEach(m => {
+               // Remove espaços internos (ex: "7 66,12" -> "766,12")
+               let limpo = m.replace(/\s/g, '').replace(/\./g, '').replace(',', '.');
+               let v = parseFloat(limpo);
+               // Filtra anos (2024, 2025) e valores absurdos
+               if (!isNaN(v) && v > maior && v < 20000 && !limpo.includes('2024') && !limpo.includes('2025')) maior = v;
+            });
+            if (maior > 0) valorEncontrado = maior;
+         }
       }
 
       if (valorEncontrado > 0) {
          document.getElementById('valorTransacao').value = valorEncontrado.toFixed(2);
-         document.getElementById('descricaoTransacao').value = "Nota Fiscal";
-         alert(`Valor identificado: R$ ${valorEncontrado.toFixed(2)}`);
+         document.getElementById('descricaoTransacao').value = "Compra (Nota Fiscal)";
+         // Toca um feedback visual
+         const input = document.getElementById('valorTransacao');
+         input.classList.add('bg-green-100', 'text-green-800');
+         setTimeout(() => input.classList.remove('bg-green-100', 'text-green-800'), 1500);
       } else {
-         alert("Não conseguimos ler o valor. Tente focar melhor no 'TOTAL' da nota.");
+         alert("Não conseguimos identificar o valor com clareza. Por favor, digite.");
       }
-    }
-
-    function parseMoney(str) {
-       return parseFloat(str.replace(/\./g, '').replace(',', '.'));
     }
   </script>
 </body>
