@@ -2,9 +2,11 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>MinhasEconomias - Responsivo Pro</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>MinhasEconomias - App Final</title>
+  
   <script src="https://cdn.tailwindcss.com"></script>
+  
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
 
@@ -15,6 +17,15 @@
           fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
           colors: {
             brand: { 50: '#eef2ff', 100: '#e0e7ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 900: '#312e81' }
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.5s ease-out forwards',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' },
+            }
           }
         }
       }
@@ -22,14 +33,18 @@
   </script>
 
   <style>
+    /* Reset e Ajustes Globais */
     body { -webkit-tap-highlight-color: transparent; background-color: #f8fafc; }
-    .glass-card { background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%); box-shadow: 0 10px 30px -5px rgba(79, 70, 229, 0.4); }
+    
+    /* Utilitário para esconder Scrollbar */
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-    /* --- LÓGICA DO MODAL RESPONSIVO (O Segredo está aqui) --- */
-    
-    /* Padrão (Mobile): Bottom Sheet (Gaveta) */
+    /* Área segura para iPhone X+ */
+    .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+
+    /* --- LÓGICA DO MODAL RESPONSIVO --- */
+    /* Mobile: Gaveta (Bottom Sheet) */
     .modal-content {
       position: absolute;
       bottom: 0;
@@ -39,16 +54,16 @@
       border-top-right-radius: 2rem;
       border-bottom-left-radius: 0;
       border-bottom-right-radius: 0;
-      transform: translateY(100%); /* Escondido para baixo */
+      transform: translateY(100%);
       width: 100%;
       max-width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
     }
     
-    .modal-open .modal-content {
-      transform: translateY(0);
-    }
+    .modal-open .modal-content { transform: translateY(0); }
 
-    /* Desktop (md): Center Dialog (Janela Central) */
+    /* Desktop: Dialog Centralizado */
     @media (min-width: 768px) {
       .modal-content {
         position: relative;
@@ -56,11 +71,12 @@
         left: auto;
         right: auto;
         border-radius: 1.5rem;
-        transform: scale(0.95); /* Começa levemente menor */
+        transform: scale(0.95);
         opacity: 0;
         width: 100%;
         max-width: 450px;
         margin: auto;
+        overflow-y: visible;
       }
       
       .modal-container {
@@ -76,134 +92,124 @@
     }
   </style>
 </head>
-<body class="text-slate-800 antialiased h-screen flex overflow-hidden">
+<body class="text-slate-800 antialiased h-screen flex overflow-hidden bg-slate-50 selection:bg-brand-500 selection:text-white">
 
-  <div id="loginTela" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-50">
-    <div class="w-full max-w-sm bg-white rounded-3xl shadow-xl p-8 border border-slate-100">
+  <div id="loginTela" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-50">
+    <div class="w-full max-w-sm bg-white rounded-3xl shadow-xl p-8 border border-slate-100 animate-fade-in">
       <div class="text-center mb-8">
         <div class="w-16 h-16 bg-brand-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg mb-4 rotate-3">
           <span class="material-icons-round text-white text-3xl">account_balance_wallet</span>
         </div>
         <h1 class="text-2xl font-bold text-slate-900">MinhasEconomias</h1>
-        <p class="text-slate-500 text-sm">Entre com <b>admin</b> / <b>1234</b></p>
+        <p class="text-slate-500 text-sm mt-2">Entre com <b>admin</b> / <b>1234</b></p>
       </div>
       <div class="space-y-4">
-        <input id="usuario" type="text" value="admin" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 focus:ring-2 focus:ring-brand-500 outline-none" placeholder="Usuário">
-        <input id="senha" type="password" value="1234" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 focus:ring-2 focus:ring-brand-500 outline-none" placeholder="Senha">
-        <button onclick="fazerLogin()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-4 rounded-xl shadow-lg transition-transform active:scale-95">Entrar</button>
-        <p id="erroLogin" class="text-red-500 text-sm text-center hidden">Dados incorretos.</p>
+        <input id="usuario" type="text" value="admin" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 px-4 focus:ring-2 focus:ring-brand-500 outline-none font-medium transition-all" placeholder="Usuário">
+        <input id="senha" type="password" value="1234" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 px-4 focus:ring-2 focus:ring-brand-500 outline-none font-medium transition-all" placeholder="Senha">
+        <button onclick="fazerLogin()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-brand-500/30 transition-transform active:scale-95 text-lg">Entrar</button>
+        <p id="erroLogin" class="text-red-500 text-sm text-center hidden bg-red-50 py-2 rounded-lg font-medium">Dados incorretos.</p>
       </div>
     </div>
   </div>
 
-  <aside id="sidebar" class="hidden md:flex flex-col w-72 bg-white border-r border-slate-200 h-full">
+  <aside id="sidebar" class="hidden md:flex flex-col w-72 bg-white border-r border-slate-200 h-full z-50">
     <div class="p-8">
        <div class="flex items-center gap-3 text-brand-700">
           <span class="material-icons-round text-3xl">account_balance_wallet</span>
           <h1 class="font-bold text-xl tracking-tight">MinhasEcon.</h1>
        </div>
     </div>
-
     <nav class="flex-1 px-4 space-y-2">
-       <button onclick="mostrarTela('dashboard')" class="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl bg-brand-50 text-brand-700 font-bold transition-all">
+       <button onclick="voltarParaPrincipal()" class="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl bg-brand-50 text-brand-700 font-bold transition-all">
           <span class="material-icons-round">dashboard</span> Dashboard
        </button>
        <button onclick="abrirExtrato()" class="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 font-medium transition-all">
-          <span class="material-icons-round">receipt_long</span> Extrato Detalhado
-       </button>
-       <div class="pt-4 pb-2 px-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Conta</div>
-       <button class="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 font-medium transition-all">
-          <span class="material-icons-round">person</span> Perfil
-       </button>
-       <button class="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 font-medium transition-all">
-          <span class="material-icons-round">settings</span> Configurações
+          <span class="material-icons-round">receipt_long</span> Extrato
        </button>
     </nav>
-
     <div class="p-4 border-t border-slate-100">
        <button onclick="logout()" class="w-full flex items-center gap-2 text-slate-400 hover:text-red-500 px-4 py-2 text-sm font-medium transition-colors">
-          <span class="material-icons-round">logout</span> Sair do sistema
+          <span class="material-icons-round">logout</span> Sair
        </button>
     </div>
   </aside>
 
-  <main id="appContent" class="hidden flex-1 flex-col h-full relative bg-slate-50/50">
+  <main id="appContent" class="hidden flex-1 flex-col h-full relative bg-slate-50">
     
-    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-20 px-6 py-4 flex justify-between items-center border-b border-slate-200">
+    <header class="fixed top-0 left-0 right-0 md:static bg-white/90 backdrop-blur-xl z-40 px-6 py-4 flex justify-between items-center border-b border-slate-200/60 shadow-sm md:shadow-none h-[72px]">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 bg-gradient-to-br from-brand-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold shadow-md">
+        <div class="w-10 h-10 bg-gradient-to-br from-brand-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold shadow-md shrink-0">
           A
         </div>
         <div>
-          <p class="text-xs text-slate-500 font-medium">Bem-vindo,</p>
-          <h2 class="text-slate-900 font-bold leading-none">Administrador</h2>
+          <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wide">Bem-vindo,</p>
+          <h2 class="text-slate-900 font-bold leading-none text-lg">Administrador</h2>
         </div>
       </div>
-
       <div class="hidden md:flex gap-3">
-         <button onclick="abrirModalTransacao('receita')" class="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold shadow-sm transition-all hover:-translate-y-0.5">
-            <span class="material-icons-round text-sm">arrow_upward</span> Nova Receita
-         </button>
-         <button onclick="abrirModalTransacao('despesa')" class="flex items-center gap-2 bg-rose-500 hover:bg-rose-600 text-white px-5 py-2.5 rounded-xl font-bold shadow-sm transition-all hover:-translate-y-0.5">
-            <span class="material-icons-round text-sm">arrow_downward</span> Nova Despesa
-         </button>
+         <button onclick="abrirModalTransacao('receita')" class="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold shadow-sm transition-all hover:-translate-y-0.5">Nova Receita</button>
+         <button onclick="abrirModalTransacao('despesa')" class="flex items-center gap-2 bg-rose-500 hover:bg-rose-600 text-white px-5 py-2.5 rounded-xl font-bold shadow-sm transition-all hover:-translate-y-0.5">Nova Despesa</button>
       </div>
-
-      <button onclick="logout()" class="md:hidden w-10 h-10 flex items-center justify-center text-slate-400">
+      <button onclick="logout()" class="md:hidden w-10 h-10 flex items-center justify-center text-slate-400 active:bg-slate-100 rounded-full">
          <span class="material-icons-round">logout</span>
       </button>
     </header>
 
-    <div class="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-8 scroll-smooth" id="scrollContainer">
+    <div class="flex-1 overflow-y-auto p-5 pb-32 md:p-8 md:pb-8 pt-24 md:pt-8 scroll-smooth" id="scrollContainer">
       
       <div id="telaPrincipal" class="max-w-7xl mx-auto transition-opacity duration-300">
         
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
            
-           <div class="lg:col-span-2 space-y-6">
-              <section class="glass-card rounded-[2rem] p-6 md:p-10 text-white relative overflow-hidden transition-transform hover:scale-[1.01] duration-500">
-                <div class="absolute -right-10 -top-10 w-64 h-64 bg-white opacity-10 rounded-full blur-3xl pointer-events-none"></div>
+           <div class="lg:col-span-2 space-y-8">
+              
+              <section class="relative w-full bg-gradient-to-br from-[#4f46e5] to-[#4338ca] rounded-[2rem] p-6 text-white shadow-xl overflow-hidden min-h-[220px] flex flex-col justify-between">
                 
-                <div class="relative z-10">
-                  <p class="text-brand-100 text-sm font-medium mb-2 uppercase tracking-wide opacity-80">Saldo Disponível</p>
-                  <h1 class="text-4xl md:text-6xl font-bold tracking-tight mb-8">R$ <span id="saldoTotal">0,00</span></h1>
-                  
-                  <div class="grid grid-cols-2 gap-4">
-                     <div class="bg-black/20 p-4 rounded-2xl backdrop-blur-md border border-white/10">
-                        <div class="flex items-center gap-2 mb-1 text-emerald-300">
-                           <span class="material-icons-round text-sm bg-emerald-500/20 p-1 rounded-full">arrow_upward</span>
-                           <span class="text-xs font-bold uppercase">Entradas</span>
-                        </div>
-                        <p class="font-bold text-lg md:text-xl">R$ <span id="receitasMes">0,00</span></p>
-                     </div>
-                     <div class="bg-black/20 p-4 rounded-2xl backdrop-blur-md border border-white/10">
-                        <div class="flex items-center gap-2 mb-1 text-rose-300">
-                           <span class="material-icons-round text-sm bg-rose-500/20 p-1 rounded-full">arrow_downward</span>
-                           <span class="text-xs font-bold uppercase">Saídas</span>
-                        </div>
-                        <p class="font-bold text-lg md:text-xl">R$ <span id="gastosMes">0,00</span></p>
-                     </div>
-                  </div>
+                <div class="absolute -right-16 -top-16 w-64 h-64 bg-white opacity-10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -left-16 bottom-0 w-48 h-48 bg-purple-500 opacity-20 rounded-full blur-3xl pointer-events-none"></div>
+                
+                <div class="relative z-20 mb-4">
+                  <p class="text-indigo-100 text-sm font-semibold mb-1 uppercase tracking-wide opacity-90">Saldo Total</p>
+                  <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight break-words leading-tight">
+                    R$ <span id="saldoTotal">0,00</span>
+                  </h1>
+                </div>
+                
+                <div class="relative z-20 grid grid-cols-2 gap-4">
+                   <div class="bg-black/20 p-3 md:p-4 rounded-2xl backdrop-blur-md border border-white/10 flex flex-col justify-center">
+                      <div class="flex items-center gap-1.5 mb-1 text-emerald-300">
+                         <span class="material-icons-round text-[14px] bg-emerald-500/20 p-0.5 rounded-full">arrow_upward</span>
+                         <span class="text-[10px] md:text-xs font-bold uppercase tracking-wider">Entradas</span>
+                      </div>
+                      <p class="font-bold text-lg leading-none">R$ <span id="receitasMes">0,00</span></p>
+                   </div>
+                   <div class="bg-black/20 p-3 md:p-4 rounded-2xl backdrop-blur-md border border-white/10 flex flex-col justify-center">
+                      <div class="flex items-center gap-1.5 mb-1 text-rose-300">
+                         <span class="material-icons-round text-[14px] bg-rose-500/20 p-0.5 rounded-full">arrow_downward</span>
+                         <span class="text-[10px] md:text-xs font-bold uppercase tracking-wider">Saídas</span>
+                      </div>
+                      <p class="font-bold text-lg leading-none">R$ <span id="gastosMes">0,00</span></p>
+                   </div>
                 </div>
               </section>
 
               <section class="md:hidden">
-                 <h3 class="text-slate-800 font-bold text-lg mb-4 ml-1">Acesso Rápido</h3>
-                 <div class="grid grid-cols-4 gap-3">
+                 <h3 class="text-slate-800 font-bold text-lg mb-4 pl-1">Acesso Rápido</h3>
+                 <div class="grid grid-cols-4 gap-4">
                     <button onclick="abrirModalTransacao('receita')" class="flex flex-col items-center gap-2 group active:scale-95 transition-transform">
-                      <div class="w-14 h-14 rounded-2xl bg-emerald-100 flex items-center justify-center text-emerald-600 shadow-sm"><span class="material-icons-round">add</span></div>
+                      <div class="w-14 h-14 rounded-[1.2rem] bg-emerald-50 flex items-center justify-center text-emerald-600 shadow-sm border border-emerald-100"><span class="material-icons-round text-2xl">add</span></div>
                       <span class="text-[11px] font-bold text-slate-600">Entrada</span>
                     </button>
                     <button onclick="abrirModalTransacao('despesa')" class="flex flex-col items-center gap-2 group active:scale-95 transition-transform">
-                      <div class="w-14 h-14 rounded-2xl bg-rose-100 flex items-center justify-center text-rose-600 shadow-sm"><span class="material-icons-round">remove</span></div>
+                      <div class="w-14 h-14 rounded-[1.2rem] bg-rose-50 flex items-center justify-center text-rose-600 shadow-sm border border-rose-100"><span class="material-icons-round text-2xl">remove</span></div>
                       <span class="text-[11px] font-bold text-slate-600">Saída</span>
                     </button>
                     <button onclick="abrirExtrato()" class="flex flex-col items-center gap-2 group active:scale-95 transition-transform">
-                      <div class="w-14 h-14 rounded-2xl bg-blue-100 flex items-center justify-center text-blue-600 shadow-sm"><span class="material-icons-round">receipt</span></div>
+                      <div class="w-14 h-14 rounded-[1.2rem] bg-blue-50 flex items-center justify-center text-blue-600 shadow-sm border border-blue-100"><span class="material-icons-round text-2xl">receipt_long</span></div>
                       <span class="text-[11px] font-bold text-slate-600">Extrato</span>
                     </button>
-                    <button class="flex flex-col items-center gap-2 group active:scale-95 transition-transform opacity-50">
-                      <div class="w-14 h-14 rounded-2xl bg-purple-100 flex items-center justify-center text-purple-600 shadow-sm"><span class="material-icons-round">pie_chart</span></div>
+                    <button class="flex flex-col items-center gap-2 group opacity-40">
+                      <div class="w-14 h-14 rounded-[1.2rem] bg-purple-50 flex items-center justify-center text-purple-600 shadow-sm border border-purple-100"><span class="material-icons-round text-2xl">pie_chart</span></div>
                       <span class="text-[11px] font-bold text-slate-600">Metas</span>
                     </button>
                  </div>
@@ -211,30 +217,30 @@
            </div>
 
            <div class="lg:col-span-1 flex flex-col h-full">
-              <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex-1 flex flex-col">
+              <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100 flex-1 flex flex-col">
                  <div class="flex justify-between items-center mb-6">
                     <h3 class="text-slate-800 font-bold text-lg">Histórico Recente</h3>
-                    <button onclick="abrirExtrato()" class="text-brand-600 text-xs font-bold uppercase hover:underline">Ver tudo</button>
+                    <button onclick="abrirExtrato()" class="text-brand-600 text-xs font-bold uppercase tracking-wider hover:bg-brand-50 px-2 py-1 rounded-lg transition-colors">Ver tudo</button>
                  </div>
-                 <div id="listaTransacoes" class="flex-1 space-y-3 overflow-y-auto max-h-[400px] lg:max-h-full no-scrollbar pr-2">
+                 <div id="listaTransacoes" class="flex-1 space-y-4 overflow-y-auto no-scrollbar">
                     </div>
               </div>
            </div>
         </div>
       </div>
 
-      <div id="telaExtrato" class="hidden max-w-5xl mx-auto animate-fade-in">
-        <button onclick="voltarParaPrincipal()" class="mb-4 flex items-center gap-2 text-slate-500 hover:text-brand-600 font-bold transition-colors">
-           <span class="material-icons-round">arrow_back</span> Voltar para Dashboard
+      <div id="telaExtrato" class="hidden max-w-5xl mx-auto animate-fade-in pb-20">
+        <button onclick="voltarParaPrincipal()" class="mb-6 flex items-center gap-2 text-slate-500 hover:text-brand-600 font-bold transition-colors bg-white px-4 py-2 rounded-full shadow-sm w-fit">
+           <span class="material-icons-round text-sm">arrow_back_ios</span> Voltar
         </button>
         
-        <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 min-h-[500px]">
-           <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100 min-h-[500px]">
+           <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-6">
               <h2 class="text-2xl font-bold text-slate-900">Extrato Completo</h2>
               <div class="flex gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 no-scrollbar">
-                 <button onclick="filtrarExtrato('todos')" class="filter-btn active px-6 py-2 rounded-full text-sm font-bold bg-brand-600 text-white shadow-md transition-all">Todos</button>
-                 <button onclick="filtrarExtrato('receita')" class="filter-btn px-6 py-2 rounded-full text-sm font-bold bg-slate-100 text-slate-500 hover:bg-emerald-100 hover:text-emerald-700 transition-all">Entradas</button>
-                 <button onclick="filtrarExtrato('despesa')" class="filter-btn px-6 py-2 rounded-full text-sm font-bold bg-slate-100 text-slate-500 hover:bg-rose-100 hover:text-rose-700 transition-all">Saídas</button>
+                 <button onclick="filtrarExtrato('todos')" class="filter-btn active px-5 py-2.5 rounded-full text-sm font-bold bg-brand-600 text-white shadow-lg shadow-brand-500/30 transition-all shrink-0">Todos</button>
+                 <button onclick="filtrarExtrato('receita')" class="filter-btn px-5 py-2.5 rounded-full text-sm font-bold bg-slate-100 text-slate-500 hover:bg-emerald-100 hover:text-emerald-700 transition-all shrink-0">Entradas</button>
+                 <button onclick="filtrarExtrato('despesa')" class="filter-btn px-5 py-2.5 rounded-full text-sm font-bold bg-slate-100 text-slate-500 hover:bg-rose-100 hover:text-rose-700 transition-all shrink-0">Saídas</button>
               </div>
            </div>
            <div id="listaExtratoCompleto" class="space-y-2"></div>
@@ -244,55 +250,53 @@
     </div>
   </main>
 
-  <button onclick="abrirModalTransacao('despesa')" class="md:hidden fixed bottom-24 right-6 w-14 h-14 bg-brand-600 text-white rounded-full shadow-xl shadow-brand-500/40 flex items-center justify-center active:scale-90 transition-transform z-40">
-    <span class="material-icons-round text-2xl">add</span>
+  <button onclick="abrirModalTransacao('despesa')" class="md:hidden fixed bottom-[90px] right-6 w-14 h-14 bg-brand-600 text-white rounded-full shadow-xl shadow-brand-500/40 flex items-center justify-center active:scale-90 transition-transform z-40">
+    <span class="material-icons-round text-3xl">add</span>
   </button>
 
-  <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-6 py-3 flex justify-between items-center z-30 pb-safe shadow-[0_-5px_20px_rgba(0,0,0,0.03)]">
+  <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-8 py-4 flex justify-between items-center z-50 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.05)] rounded-t-[2rem]">
     <button onclick="voltarParaPrincipal()" class="flex flex-col items-center gap-1 text-brand-600 transition-transform active:scale-90">
-      <span class="material-icons-round text-2xl">home</span>
+      <span class="material-icons-round text-3xl">home</span>
     </button>
     <button onclick="abrirExtrato()" class="flex flex-col items-center gap-1 text-slate-300 hover:text-brand-500 transition-transform active:scale-90">
-      <span class="material-icons-round text-2xl">receipt_long</span>
+      <span class="material-icons-round text-3xl">receipt_long</span>
     </button>
     <button class="flex flex-col items-center gap-1 text-slate-300 hover:text-brand-500 transition-transform active:scale-90">
-      <span class="material-icons-round text-2xl">pie_chart</span>
+      <span class="material-icons-round text-3xl">pie_chart</span>
     </button>
-    <button class="flex flex-col items-center gap-1 text-slate-300 hover:text-brand-500 transition-transform active:scale-90">
-      <span class="material-icons-round text-2xl">settings</span>
+    <button onclick="logout()" class="flex flex-col items-center gap-1 text-slate-300 hover:text-red-500 transition-transform active:scale-90">
+      <span class="material-icons-round text-3xl">logout</span>
     </button>
   </nav>
 
-  <div id="modalTransacao" class="fixed inset-0 z-[60] hidden modal-container transition-all duration-300">
-    
+  <div id="modalTransacao" class="fixed inset-0 z-[100] hidden modal-container transition-all duration-300">
     <div onclick="fecharModal()" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity opacity-0" id="modalBackdrop"></div>
     
-    <div class="bg-white p-6 shadow-2xl transition-all duration-300 modal-content" id="modalContent">
+    <div class="bg-white p-8 shadow-2xl transition-all duration-300 modal-content relative" id="modalContent">
+      <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-8 md:hidden"></div>
       
-      <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-6 md:hidden"></div>
-      
-      <div class="flex items-center justify-between mb-6">
-         <div class="flex items-center gap-3">
-            <div id="modalIconBg" class="w-12 h-12 rounded-2xl flex items-center justify-center transition-colors">
-               <span id="modalIcon" class="material-icons-round text-white text-xl"></span>
+      <div class="flex items-center justify-between mb-8">
+         <div class="flex items-center gap-4">
+            <div id="modalIconBg" class="w-14 h-14 rounded-2xl flex items-center justify-center transition-colors shadow-sm">
+               <span id="modalIcon" class="material-icons-round text-white text-2xl"></span>
             </div>
             <div>
-               <p class="text-xs font-bold text-slate-400 uppercase tracking-wide">Nova Transação</p>
-               <h3 id="modalTitulo" class="text-xl font-bold text-slate-800 leading-none">Registrar</h3>
+               <p class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-1">Nova Transação</p>
+               <h3 id="modalTitulo" class="text-2xl font-bold text-slate-900 leading-none">Registrar</h3>
             </div>
          </div>
-         <button onclick="fecharModal()" class="hidden md:flex w-8 h-8 rounded-full bg-slate-100 items-center justify-center hover:bg-slate-200">
-            <span class="material-icons-round text-slate-500 text-sm">close</span>
+         <button onclick="fecharModal()" class="hidden md:flex w-10 h-10 rounded-full bg-slate-50 items-center justify-center hover:bg-slate-100 transition-colors">
+            <span class="material-icons-round text-slate-400">close</span>
          </button>
       </div>
 
-      <div class="space-y-5">
+      <div class="space-y-6">
         <div>
           <label class="block text-xs font-bold text-slate-500 uppercase mb-2 ml-1">Valor</label>
-          <div class="relative">
-             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-lg">R$</span>
+          <div class="relative group">
+             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-lg group-focus-within:text-brand-500">R$</span>
              <input id="valorTransacao" type="number" step="0.01" inputmode="decimal" placeholder="0,00" 
-              class="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 pl-12 pr-4 text-3xl font-bold text-slate-800 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500/50 transition-all placeholder:text-slate-300">
+              class="w-full bg-slate-50 border border-slate-200 rounded-2xl py-5 pl-12 pr-4 text-3xl font-bold text-slate-800 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500/50 transition-all placeholder:text-slate-300">
           </div>
         </div>
 
@@ -320,7 +324,7 @@
            </div>
         </div>
 
-        <button onclick="salvarTransacao()" class="w-full bg-slate-900 hover:bg-black text-white font-bold py-4 rounded-xl shadow-xl active:scale-95 transition-all mt-2 text-lg">
+        <button onclick="salvarTransacao()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-5 rounded-2xl shadow-xl shadow-brand-500/20 active:scale-95 transition-all mt-4 text-lg">
            Confirmar
         </button>
       </div>
@@ -331,11 +335,16 @@
     let transacoes = [];
     let tipoAtual = '';
 
-    // Inicialização
+    // Inicialização ao carregar a página
+    window.addEventListener('DOMContentLoaded', () => {
+       init();
+    });
+
     function init() {
-       const saved = localStorage.getItem('financas_pro_db');
+       const saved = localStorage.getItem('financas_db_v3');
        if(saved) transacoes = JSON.parse(saved);
-       // Se já estiver logado (simulação), carrega
+       
+       // Verifica se já está logado
        if(localStorage.getItem('isLogged') === 'true') {
           entrarNoApp();
        }
@@ -344,11 +353,13 @@
     function fazerLogin() {
        const u = document.getElementById('usuario').value;
        const s = document.getElementById('senha').value;
+       
        if(u === 'admin' && s === '1234') {
           localStorage.setItem('isLogged', 'true');
           entrarNoApp();
        } else {
-          document.getElementById('erroLogin').classList.remove('hidden');
+          const erro = document.getElementById('erroLogin');
+          erro.classList.remove('hidden');
        }
     }
 
@@ -356,6 +367,13 @@
        document.getElementById('loginTela').classList.add('hidden');
        document.getElementById('appContent').classList.remove('hidden');
        document.getElementById('appContent').classList.add('flex');
+       
+       // Mostra Sidebar apenas no Desktop
+       if(window.innerWidth >= 768) {
+          document.getElementById('sidebar').classList.remove('hidden');
+          document.getElementById('sidebar').classList.add('flex');
+       }
+       
        atualizarUI();
     }
 
@@ -364,7 +382,6 @@
        location.reload();
     }
 
-    // Modal Logic
     function abrirModalTransacao(tipo) {
        tipoAtual = tipo;
        const modal = document.getElementById('modalTransacao');
@@ -374,14 +391,14 @@
 
        if(tipo === 'receita') {
           titulo.innerText = 'Entrada';
-          iconBg.className = 'w-12 h-12 rounded-2xl flex items-center justify-center transition-colors bg-emerald-100';
+          iconBg.className = 'w-14 h-14 rounded-2xl flex items-center justify-center transition-colors bg-emerald-100';
           icon.innerText = 'arrow_upward';
-          icon.className = 'material-icons-round text-emerald-600 text-2xl';
+          icon.className = 'material-icons-round text-emerald-600 text-3xl';
        } else {
           titulo.innerText = 'Saída';
-          iconBg.className = 'w-12 h-12 rounded-2xl flex items-center justify-center transition-colors bg-rose-100';
+          iconBg.className = 'w-14 h-14 rounded-2xl flex items-center justify-center transition-colors bg-rose-100';
           icon.innerText = 'arrow_downward';
-          icon.className = 'material-icons-round text-rose-600 text-2xl';
+          icon.className = 'material-icons-round text-rose-600 text-3xl';
        }
 
        modal.classList.remove('hidden');
@@ -410,7 +427,7 @@
        const desc = document.getElementById('descricaoTransacao').value;
        const cat = document.getElementById('categoriaTransacao').value;
 
-       if(!val || !desc || !cat) { alert('Preencha tudo!'); return; }
+       if(!val || !desc || !cat) { alert('Preencha todos os campos!'); return; }
 
        transacoes.push({
           id: Date.now(),
@@ -421,7 +438,7 @@
           data: new Date().toLocaleDateString('pt-BR')
        });
 
-       localStorage.setItem('financas_pro_db', JSON.stringify(transacoes));
+       localStorage.setItem('financas_db_v3', JSON.stringify(transacoes));
        fecharModal();
        atualizarUI();
     }
@@ -429,21 +446,20 @@
     function atualizarUI() {
        const receitas = transacoes.filter(t => t.tipo === 'receita').reduce((a,b)=>a+b.valor,0);
        const despesas = transacoes.filter(t => t.tipo === 'despesa').reduce((a,b)=>a+b.valor,0);
+       const saldo = receitas - despesas;
        
-       document.getElementById('saldoTotal').innerText = (receitas - despesas).toLocaleString('pt-BR', {minimumFractionDigits: 2});
+       document.getElementById('saldoTotal').innerText = saldo.toLocaleString('pt-BR', {minimumFractionDigits: 2});
        document.getElementById('receitasMes').innerText = receitas.toLocaleString('pt-BR', {minimumFractionDigits: 2});
        document.getElementById('gastosMes').innerText = despesas.toLocaleString('pt-BR', {minimumFractionDigits: 2});
-       document.getElementById('extratoReceitas').innerText = `R$ ${receitas.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-       document.getElementById('extratoDespesas').innerText = `R$ ${despesas.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-
-       renderList('listaTransacoes', transacoes.slice().reverse().slice(0, 5)); // Apenas 5 recentes
-       renderList('listaExtratoCompleto', transacoes.slice().reverse()); // Todas
+       
+       renderList('listaTransacoes', transacoes.slice().reverse().slice(0, 10)); 
+       renderList('listaExtratoCompleto', transacoes.slice().reverse());
     }
 
     function renderList(elementId, list) {
        const el = document.getElementById(elementId);
        if(list.length === 0) {
-          el.innerHTML = `<div class="text-center py-10 opacity-50"><span class="material-icons-round text-4xl mb-2">inbox</span><p>Nada por aqui</p></div>`;
+          el.innerHTML = `<div class="text-center py-10 opacity-50"><span class="material-icons-round text-5xl mb-2 text-slate-300">inbox</span><p class="text-slate-400 font-medium">Nenhuma movimentação</p></div>`;
           return;
        }
        
@@ -454,26 +470,26 @@
           return `
           <div class="flex items-center justify-between p-4 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all group">
              <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-full ${isRec ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'} flex items-center justify-center shrink-0">
+                <div class="w-12 h-12 rounded-2xl ${isRec ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-rose-50 text-rose-600 border border-rose-100'} flex items-center justify-center shrink-0">
                    <span class="material-icons-round text-xl">${icons[t.categoria] || 'circle'}</span>
                 </div>
                 <div>
-                   <p class="font-bold text-slate-800">${t.descricao}</p>
-                   <p class="text-xs text-slate-400 font-medium uppercase tracking-wide">${t.categoria} • ${t.data}</p>
+                   <p class="font-bold text-slate-800 text-sm md:text-base">${t.descricao}</p>
+                   <p class="text-[10px] md:text-xs text-slate-400 font-bold uppercase tracking-wider">${t.categoria} • ${t.data}</p>
                 </div>
              </div>
              <div class="text-right">
-                <p class="font-bold ${isRec ? 'text-emerald-600' : 'text-slate-900'}">${isRec ? '+' : '-'} R$ ${t.valor.toLocaleString('pt-BR', {minimumFractionDigits:2})}</p>
-                <button onclick="deletar(${t.id})" class="text-xs text-red-400 opacity-0 group-hover:opacity-100 hover:text-red-600 transition-opacity">Excluir</button>
+                <p class="font-bold text-sm md:text-base ${isRec ? 'text-emerald-600' : 'text-slate-900'}">${isRec ? '+' : '-'} R$ ${t.valor.toLocaleString('pt-BR', {minimumFractionDigits:2})}</p>
+                <button onclick="deletar(${t.id})" class="text-[10px] font-bold uppercase text-red-300 hover:text-red-500 transition-colors pt-1">Apagar</button>
              </div>
           </div>`
        }).join('');
     }
 
     function deletar(id) {
-       if(confirm('Apagar?')) {
+       if(confirm('Tem certeza que deseja apagar?')) {
           transacoes = transacoes.filter(t => t.id !== id);
-          localStorage.setItem('financas_pro_db', JSON.stringify(transacoes));
+          localStorage.setItem('financas_db_v3', JSON.stringify(transacoes));
           atualizarUI();
        }
     }
@@ -489,17 +505,14 @@
     }
 
     function filtrarExtrato(tipo) {
-       // Atualiza botões
        document.querySelectorAll('.filter-btn').forEach(b => {
-          b.className = 'filter-btn px-6 py-2 rounded-full text-sm font-bold bg-slate-100 text-slate-500 hover:bg-slate-200 transition-all';
+          b.className = 'filter-btn px-5 py-2.5 rounded-full text-sm font-bold bg-slate-100 text-slate-500 hover:bg-slate-200 transition-all shrink-0';
        });
-       event.target.className = 'filter-btn px-6 py-2 rounded-full text-sm font-bold bg-brand-600 text-white shadow-md transition-all';
+       event.target.className = 'filter-btn px-5 py-2.5 rounded-full text-sm font-bold bg-brand-600 text-white shadow-lg shadow-brand-500/30 transition-all shrink-0';
 
        const lista = tipo === 'todos' ? transacoes : transacoes.filter(t => t.tipo === tipo);
        renderList('listaExtratoCompleto', lista.slice().reverse());
     }
-
-    init();
   </script>
 </body>
 </html>
