@@ -2,337 +2,229 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
+<title>MinhasEconomias</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Minhas Economias</title>
 
-<!-- Tailwind -->
 <script src="https://cdn.tailwindcss.com"></script>
 
-<!-- Excel -->
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-
-<!-- OCR -->
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-
-<!-- Fonts & Icons -->
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
-
 <style>
-body{
-  font-family:'Plus Jakarta Sans',sans-serif;
-  background:#f8fafc;
+body {
+  background: radial-gradient(circle at top, #e0f2fe, #f8fafc 40%);
 }
-.modal{
-  transform:translateY(100%);
-  transition:.3s;
+.glass {
+  background: rgba(255,255,255,.75);
+  backdrop-filter: blur(14px);
 }
-.modal-open{
-  transform:translateY(0);
+.fade {
+  animation: fade .4s ease;
 }
-.camera-btn{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:10px;
-  background:#eef2ff;
-  padding:14px;
-  border-radius:16px;
-  font-weight:600;
-  cursor:pointer;
-  transition:.2s;
-}
-.camera-btn:hover{
-  background:#e0e7ff;
-}
-.preview{
-  width:100%;
-  border-radius:16px;
-  margin-top:10px;
-  display:none;
-}
-.loader{
-  display:none;
-  margin-top:10px;
-  text-align:center;
-  font-size:14px;
-  color:#64748b;
+@keyframes fade {
+  from { opacity: 0; transform: translateY(12px) }
+  to { opacity: 1; transform: translateY(0) }
 }
 </style>
 </head>
 
-<body class="h-screen overflow-hidden">
+<body class="min-h-screen text-slate-800">
 
 <!-- LOGIN -->
-<div id="loginTela" class="fixed inset-0 flex items-center justify-center bg-slate-100">
-  <div class="bg-white p-8 rounded-3xl shadow-xl w-80">
-    <h1 class="text-2xl font-extrabold mb-6 text-center">Minhas Economias</h1>
-    <input id="usuario" value="admin" class="w-full p-3 mb-3 bg-slate-100 rounded-xl">
-    <input id="senha" value="1234" type="password" class="w-full p-3 mb-6 bg-slate-100 rounded-xl">
-    <button onclick="login()" class="w-full bg-indigo-600 text-white p-3 rounded-xl font-bold">Entrar</button>
+<div id="loginTela" class="min-h-screen flex items-center justify-center">
+  <div class="glass w-full max-w-md p-10 rounded-3xl shadow-2xl fade">
+    <h1 class="text-3xl font-extrabold text-center mb-2">💰 MinhasEconomias</h1>
+    <p class="text-center text-slate-500 mb-8">Controle financeiro inteligente</p>
+
+    <input id="email" placeholder="Email"
+      class="w-full p-4 mb-3 rounded-xl border focus:ring-2 focus:ring-emerald-400">
+
+    <input id="senha" type="password" placeholder="Senha"
+      class="w-full p-4 mb-6 rounded-xl border focus:ring-2 focus:ring-emerald-400">
+
+    <button id="btnLogin"
+      class="w-full bg-gradient-to-r from-emerald-500 to-green-600 text-white p-4 rounded-xl font-semibold shadow">
+      Entrar
+    </button>
+
+    <button id="btnRegistrar"
+      class="w-full mt-3 p-3 rounded-xl text-sm text-slate-600 hover:underline">
+      Criar conta gratuita
+    </button>
+
+    <p id="msg" class="text-center text-red-500 text-sm mt-4"></p>
   </div>
 </div>
 
 <!-- APP -->
-<div id="app" class="hidden h-full flex">
+<div id="app" class="hidden max-w-7xl mx-auto px-6 py-10 fade">
 
-<!-- SIDEBAR -->
-<aside class="w-64 bg-white border-r p-6 hidden md:block">
-  <h2 class="font-extrabold text-xl mb-6">MinhasEcon.</h2>
-  <button onclick="mostrar('dash')" class="w-full p-3 mb-2 rounded-xl bg-indigo-50 font-bold">Dashboard</button>
-  <button onclick="mostrar('extrato')" class="w-full p-3 rounded-xl">Extrato</button>
-</aside>
-
-<!-- MAIN -->
-<main class="flex-1 p-6 overflow-y-auto">
-
-<header class="flex justify-between items-center mb-6">
-  <h2 class="text-xl font-bold">Controle Financeiro</h2>
-  <input type="month" id="mes" class="bg-slate-100 p-2 rounded-xl">
+<header class="flex justify-between items-center mb-10">
+  <div>
+    <h2 class="text-sm uppercase tracking-wide text-slate-500">Saldo atual</h2>
+    <h1 class="text-5xl font-extrabold text-emerald-600">
+      R$ <span id="saldo">0,00</span>
+    </h1>
+  </div>
+  <button id="btnLogout" class="text-sm text-slate-500 hover:text-red-500">
+    Sair
+  </button>
 </header>
 
-<!-- DASH -->
-<div id="dash">
-
-<div class="bg-indigo-600 text-white p-6 rounded-3xl mb-6 shadow">
-  <p class="opacity-80">Saldo do mês</p>
-  <h1 class="text-4xl font-extrabold">R$ <span id="saldo">0,00</span></h1>
-</div>
-
-<div class="bg-white p-6 rounded-2xl mb-6 shadow">
-  <h3 class="font-bold mb-4">Lançamentos</h3>
-  <div id="lista" class="space-y-2"></div>
-</div>
-
-<div class="flex gap-3">
-  <button onclick="abrirModal('receita')" class="flex-1 bg-emerald-500 text-white py-3 rounded-xl font-bold">+ Receita</button>
-  <button onclick="abrirModal('despesa')" class="flex-1 bg-rose-500 text-white py-3 rounded-xl font-bold">- Despesa</button>
-</div>
-
-</div>
-
-<!-- EXTRATO -->
-<div id="extrato" class="hidden">
-  <button onclick="mostrar('dash')" class="mb-4 font-bold">← Voltar</button>
-
-  <div class="bg-white p-6 rounded-2xl shadow">
-    <div class="flex justify-between mb-4">
-      <h2 class="font-bold text-xl">Extrato</h2>
-      <button onclick="exportarExcel()" class="bg-emerald-500 text-white px-4 py-2 rounded-xl font-bold">Excel</button>
-    </div>
-    <div id="listaExtrato" class="space-y-2"></div>
+<section class="grid md:grid-cols-2 gap-6 mb-10">
+  <div class="glass p-6 rounded-2xl shadow">
+    <p class="text-slate-500">Entradas</p>
+    <h3 class="text-3xl font-bold text-green-600">
+      R$ <span id="receitas">0,00</span>
+    </h3>
   </div>
-</div>
 
-</main>
-</div>
-
-<!-- MODAL -->
-<div id="modal" class="fixed inset-0 bg-black/50 hidden items-end">
-  <div class="bg-white p-6 w-full rounded-t-3xl modal">
-    <h3 id="titulo" class="font-bold text-xl mb-4"></h3>
-
-    <input id="valor" type="number" placeholder="Valor" class="w-full p-3 bg-slate-100 rounded-xl mb-3">
-    <input id="desc" placeholder="Descrição" class="w-full p-3 bg-slate-100 rounded-xl mb-3">
-
-    <select id="categoria" class="w-full p-3 bg-slate-100 rounded-xl mb-3">
-      <option>Alimentação</option>
-      <option>Transporte</option>
-      <option>Moradia</option>
-      <option>Saúde</option>
-      <option>Educação</option>
-      <option>Outros</option>
-    </select>
-
-    <!-- CAMERA -->
-    <label class="camera-btn mb-3">
-      <span class="material-icons-round text-indigo-600">photo_camera</span>
-      Enviar foto da nota
-      <input type="file" accept="image/*" capture="environment" hidden onchange="lerNota(this)">
-    </label>
-
-    <img id="preview" class="preview">
-    <div id="loader" class="loader">📷 Lendo nota fiscal...</div>
-
-    <button onclick="salvar()" class="w-full bg-indigo-600 text-white p-3 rounded-xl font-bold mt-4">Salvar</button>
+  <div class="glass p-6 rounded-2xl shadow">
+    <p class="text-slate-500">Saídas</p>
+    <h3 class="text-3xl font-bold text-red-500">
+      R$ <span id="despesas">0,00</span>
+    </h3>
   </div>
+</section>
+
+<section class="grid lg:grid-cols-3 gap-8">
+
+<div class="lg:col-span-2 glass p-6 rounded-2xl shadow">
+  <h3 class="font-semibold text-lg mb-4">Movimentações</h3>
+  <div id="lista" class="space-y-3"></div>
 </div>
 
-<script>
-let transacoes=[], tipoAtual='', mesAtual='';
+<div class="glass p-6 rounded-2xl shadow">
+  <h3 class="font-semibold text-lg mb-4">Nova movimentação</h3>
 
-function login(){
-  loginTela.classList.add('hidden');
-  app.classList.remove('hidden');
-  init();
-}
+  <input id="valor" type="number" step="0.01" placeholder="Valor"
+    class="w-full p-3 mb-2 rounded-xl border">
 
-function init(){
-  transacoes = JSON.parse(localStorage.getItem('dados')||'[]');
-  const d=new Date();
-  mes.value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-  mesAtual = mes.value;
-  mes.onchange = e => { mesAtual=e.target.value; render(); };
-  render();
-}
+  <input id="descricao" placeholder="Descrição"
+    class="w-full p-3 mb-2 rounded-xl border">
 
-function mostrar(t){
-  dash.classList.toggle('hidden', t!=='dash');
-  extrato.classList.toggle('hidden', t!=='extrato');
-}
+  <select id="categoria" class="w-full p-3 mb-2 rounded-xl border">
+    <option>Alimentação</option>
+    <option>Transporte</option>
+    <option>Salário</option>
+    <option>Lazer</option>
+  </select>
 
-function abrirModal(tipo){
-  tipoAtual = tipo;
-  titulo.innerText = tipo==='receita'?'Nova Receita':'Nova Despesa';
-  modal.classList.remove('hidden');
-  setTimeout(()=>modal.firstElementChild.classList.add('modal-open'),10);
-}
+  <select id="tipo" class="w-full p-3 mb-4 rounded-xl border">
+    <option value="receita">Entrada</option>
+    <option value="despesa">Saída</option>
+  </select>
 
-function salvar(){
-  if(!valor.value || !desc.value) return alert('Preencha os campos');
+  <button id="btnSalvar"
+    class="w-full bg-emerald-500 hover:bg-emerald-600 text-white p-4 rounded-xl font-semibold">
+    Salvar
+  </button>
+</div>
 
-  const [ano,mes] = mesAtual.split('-');
+</section>
+</div>
 
-  transacoes.push({
-    id:Date.now(),
-    tipo:tipoAtual,
-    valor:+valor.value,
-    desc:desc.value,
-    categoria:categoria.value,
-    data:`${ano}-${mes}-01`
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+const supabase = createClient(
+  "https://jkzsorzwtyeynnwirwrf.supabase.co",
+  "sb_publishable_oaPD0x48PzcvVNsMw1xr4A_jb5zSb4G"
+);
+
+const $ = id => document.getElementById(id);
+let user = null;
+
+/* AUTH */
+$("btnLogin").onclick = async () => {
+  const { error } = await supabase.auth.signInWithPassword({
+    email: $("email").value,
+    password: $("senha").value
+  });
+  if (error) $("msg").innerText = error.message;
+};
+
+$("btnRegistrar").onclick = async () => {
+  const { error } = await supabase.auth.signUp({
+    email: $("email").value,
+    password: $("senha").value
+  });
+  $("msg").innerText = error ? error.message : "Conta criada!";
+};
+
+$("btnLogout").onclick = async () => {
+  await supabase.auth.signOut();
+  location.reload();
+};
+
+/* SESSION */
+supabase.auth.onAuthStateChange((_, session) => {
+  if (session) {
+    user = session.user;
+    $("loginTela").classList.add("hidden");
+    $("app").classList.remove("hidden");
+    carregar();
+  }
+});
+
+/* CREATE */
+$("btnSalvar").onclick = async () => {
+  if (!user) return;
+
+  const { error } = await supabase.from("transacoes").insert({
+    user_id: user.id,
+    valor: Number($("valor").value),
+    descricao: $("descricao").value,
+    categoria: $("categoria").value,
+    tipo: $("tipo").value
   });
 
-  localStorage.setItem('dados',JSON.stringify(transacoes));
-  modal.classList.add('hidden');
-  preview.style.display='none';
-  render();
-}
+  if (error) return alert(error.message);
 
-function filtrar(){
-  return transacoes.filter(t=>t.data.startsWith(mesAtual));
-}
+  $("valor").value = "";
+  $("descricao").value = "";
+  carregar();
+};
 
-function render(){
-  const dados = filtrar();
-  const saldoMes = dados.reduce((s,t)=>s+(t.tipo==='receita'?t.valor:-t.valor),0);
-  saldo.innerText = saldoMes.toFixed(2).replace('.',',');
+/* DELETE */
+window.excluir = async id => {
+  if (!confirm("Excluir transação?")) return;
+  await supabase.from("transacoes").delete().eq("id", id);
+  carregar();
+};
 
-  const html = dados.map(t=>`
-    <div class="flex justify-between bg-slate-50 p-3 rounded-xl">
-      <div>
-        <p class="font-semibold">${t.desc}</p>
-        <p class="text-xs text-slate-500">${t.categoria}</p>
-      </div>
-      <span class="${t.tipo==='receita'?'text-emerald-600':'text-rose-600'} font-bold">
-        R$ ${t.valor.toFixed(2)}
-      </span>
-    </div>
-  `).join('');
+/* READ */
+async function carregar() {
+  const { data, error } = await supabase
+    .from("transacoes")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
 
-  lista.innerHTML = html;
-  listaExtrato.innerHTML = html;
-}
+  if (error) return alert(error.message);
 
-function lerNota(input){
-  const img = input.files[0];
-  if(!img) return;
+  let r = 0, d = 0;
+  $("lista").innerHTML = "";
 
-  loader.style.display = 'block';
+  data.forEach(t => {
+    t.tipo === "receita" ? r += t.valor : d += t.valor;
 
-  Tesseract.recognize(img, 'por').then(r => {
-    loader.style.display = 'none';
-
-    const linhas = r.data.text
-      .split('\n')
-      .map(l => l.trim())
-      .filter(l => l.length);
-
-    let valorTotal = null;
-
-    function extrairValor(texto){
-      const m = texto.match(/(\d+[.,]\d{2})/);
-      if(!m) return null;
-      return parseFloat(m[1].replace(',','.'));
-    }
-
-    function linhaBloqueada(l){
-      return (
-        l.includes('CNPJ') ||
-        l.includes('CPF') ||
-        l.includes('IE') ||
-        l.includes('MD5') ||
-        l.includes('COO') ||
-        l.includes('ITEM') ||
-        l.includes('COD') ||
-        l.includes('/') ||
-        /\d{6,}/.test(l)
-      );
-    }
-
-    // 🔥 REGRA DE OURO — TOTAL
-    for(let i = 0; i < linhas.length; i++){
-      const l = linhas[i].toUpperCase();
-
-      if(l.includes('TOTAL')){
-        let v = extrairValor(l);
-        if(v){
-          valorTotal = v;
-          break;
-        }
-
-        if(i + 1 < linhas.length){
-          const abaixo = linhas[i + 1].toUpperCase();
-          if(!linhaBloqueada(abaixo)){
-            v = extrairValor(abaixo);
-            if(v){
-              valorTotal = v;
-              break;
-            }
-          }
-        }
-      }
-    }
-
-    if(!valorTotal){
-      alert('Não foi possível identificar o TOTAL da nota.');
-      return;
-    }
-
-    document.getElementById('valor').value =
-      valorTotal.toFixed(2);
-
-    // Descrição automática opcional
-    const desc = linhas.find(l =>
-      !linhaBloqueada(l) &&
-      l.length > 10 &&
-      !l.match(/TOTAL/i)
-    );
-
-    if(desc){
-      document.getElementById('desc').value =
-        desc.substring(0,60);
-    }
-
-    // 🔒 LIMPA A FOTO DA MEMÓRIA
-    input.value = '';
+    $("lista").innerHTML += `
+      <div class="flex justify-between items-center p-3 rounded-xl hover:bg-slate-50 group">
+        <div>
+          <p class="font-medium">${t.descricao}</p>
+          <span class="text-xs text-slate-500">${t.categoria}</span>
+        </div>
+        <div class="flex items-center gap-4">
+          <span class="${t.tipo === "receita" ? "text-green-600" : "text-red-500"} font-semibold">
+            ${t.tipo === "receita" ? "+" : "-"} R$ ${t.valor.toFixed(2)}
+          </span>
+          <button onclick="excluir(${t.id})"
+            class="opacity-0 group-hover:opacity-100 text-red-500">✕</button>
+        </div>
+      </div>`;
   });
-}
 
-
-
-function exportarExcel(){
-  const dados = filtrar().map(t=>({
-    Data:t.data,
-    Tipo:t.tipo,
-    Descricao:t.desc,
-    Categoria:t.categoria,
-    Valor:t.valor
-  }));
-
-  const ws = XLSX.utils.json_to_sheet(dados);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb,ws,'Extrato');
-  XLSX.writeFile(wb,'extrato.xlsx');
+  $("receitas").innerText = r.toFixed(2);
+  $("despesas").innerText = d.toFixed(2);
+  $("saldo").innerText = (r - d).toFixed(2);
 }
 </script>
 
